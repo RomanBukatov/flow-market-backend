@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FlowMarket.Api/FlowMarket.Api.csproj" />
+  <Project Path="FlowMarket.Application/FlowMarket.Application.csproj" />
+  <Project Path="FlowMarket.Domain/FlowMarket.Domain.csproj" />
+  <Project Path="FlowMarket.Infrastructure/FlowMarket.Infrastructure.csproj" />
+</Solution>
