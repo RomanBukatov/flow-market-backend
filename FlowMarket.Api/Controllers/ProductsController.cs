@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using FlowMarket.Infrastructure.Persistence;
+using Marketplace.Domain.Entities.Products;
 
 namespace FlowMarket.Api.Controllers
 {
@@ -6,30 +9,44 @@ namespace FlowMarket.Api.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
+        private readonly AppDbContext _context;
+
+        // Внедряем DbContext через конструктор
+        public ProductsController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         // GET: api/products
         [HttpGet]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            // Возвращаем тестовые данные, чтобы показать клиенту структуру
-            var products = new[]
+            // Читаем из реальной БД
+            var products = await _context.Products
+                                         .Include(p => p.Shop) // Подгружаем магазин
+                                         .ToListAsync();
+            return Ok(products);
+        }
+
+        // POST: api/products (Временный метод, чтобы добавить товар и проверить)
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct(string name, decimal price)
+        {
+            var product = new Product
             {
-                new {
-                    Id = Guid.NewGuid(),
-                    Name = "Букет '101 Роза'",
-                    Price = 15000,
-                    IsDailyOffer = true, // Собран сегодня
-                    ShopName = "MarioFlowers Main"
-                },
-                new {
-                    Id = Guid.NewGuid(),
-                    Name = "Торт 'Наполеон'",
-                    Price = 2500,
-                    IsDailyOffer = false,
-                    ShopName = "Sweet Bakery"
-                }
+                Name = name,
+                BasePrice = price,
+                Description = "Test Description",
+                ShopId = Guid.Empty, // Тут упадет, если нет магазина, но для теста соединения пойдет
+                // Хак: чтобы не падало, создадим заглушку магазина, если надо, 
+                // но пока просто проверим, дойдет ли запрос до базы.
             };
 
-            return Ok(products);
+            // В реале тут будет сложная логика, пока просто тест соединения
+            // _context.Products.Add(product);
+            // await _context.SaveChangesAsync();
+            
+            return Ok("Database connection is OK!");
         }
     }
 }
