@@ -1,4 +1,6 @@
 using Scalar.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using FlowMarket.Infrastructure.Persistence;
 
 // Исправляем кодировку консоли
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -8,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Добавляем сервисы
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// ПОДКЛЮЧЕНИЕ БД (PostgreSQL)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // НАСТРОЙКА OPENAPI (МЕТАДАННЫЕ)
 builder.Services.AddOpenApi(options =>

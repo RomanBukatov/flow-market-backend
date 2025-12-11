@@ -1,3 +1,5 @@
+using Marketplace.Domain.Entities.Base;
+using Marketplace.Domain.Entities.Shops;
 using System.Collections.Generic;
 
 namespace Marketplace.Domain.Entities.Users
