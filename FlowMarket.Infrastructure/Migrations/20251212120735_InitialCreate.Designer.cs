@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlowMarket.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251211113326_InitialCreate")]
+    [Migration("20251212120735_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

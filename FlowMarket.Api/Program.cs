@@ -1,11 +1,15 @@
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using FlowMarket.Application.Catalog.Interfaces;
+using FlowMarket.Infrastructure.Services;
 using FlowMarket.Infrastructure.Persistence;
 using FlowMarket.Infrastructure.Persistence.Seeding;
-using System.Text.Json.Serialization;
 
-// Исправляем кодировку консоли
+// Исправляем кодировку
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+// Регистрируем провайдер кодировок (для поддержки Windows-1251 в Excel)
+System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 // ПОДКЛЮЧЕНИЕ БД (PostgreSQL)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IProductImportService, ProductImportService>();
 
 // НАСТРОЙКА OPENAPI (МЕТАДАННЫЕ)
 builder.Services.AddOpenApi(options =>
