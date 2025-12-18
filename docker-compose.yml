@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  # 1. НАШ БЭКЕНД
+  api:
+    image: flowmarket-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flowmarket_api
+    restart: always
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=flowmarket;Username=admin;Password=password
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - db
+
+  # 2. БАЗА ДАННЫХ
   db:
     image: postgres:16-alpine
     container_name: flowmarket_db
