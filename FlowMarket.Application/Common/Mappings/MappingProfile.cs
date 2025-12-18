@@ -11,6 +11,7 @@ namespace FlowMarket.Application.Common.Mappings
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BasePrice))
                 .ForMember(dest => dest.ShopName, opt => opt.MapFrom(src => src.Shop.Name))
+                .ForMember(dest => dest.ShopId, opt => opt.MapFrom(src => src.ShopId))
                 .ForMember(dest => dest.Composition, opt => opt.MapFrom(src => src.CompositionJson))
                 // Если ImageUrl пустой, ставим заглушку. Если есть - берем его.
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
