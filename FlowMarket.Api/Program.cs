@@ -65,10 +65,16 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 
-// АВТО-ЗАПОЛНЕНИЕ БАЗЫ (SEEDING)
+// АВТО-ЗАПОЛНЕНИЕ БАЗЫ И МИГРАЦИИ
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    // 1. НАКАТЫВАЕМ МИГРАЦИИ (Создаем таблицы, если их нет)
+    // Важно: Это должно быть ДО сидинга!
+    context.Database.Migrate(); 
+
+    // 2. ЗАПОЛНЯЕМ ДАННЫМИ (Если таблицы пустые)
     await DbInitializer.SeedAsync(context);
 }
 
