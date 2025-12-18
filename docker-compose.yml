@@ -10,7 +10,7 @@ services:
     container_name: flowmarket_api
     restart: always
     ports:
-      - "5000:8080"
+      - "80:8080"
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=flowmarket;Username=admin;Password=password
       - ASPNETCORE_ENVIRONMENT=Development
