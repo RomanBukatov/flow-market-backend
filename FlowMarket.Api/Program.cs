@@ -5,6 +5,7 @@ using FlowMarket.Application.Catalog.Interfaces;
 using FlowMarket.Infrastructure.Services;
 using FlowMarket.Infrastructure.Persistence;
 using FlowMarket.Infrastructure.Persistence.Seeding;
+using FlowMarket.Application.Common.Mappings;
 
 // Исправляем кодировку
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -26,6 +27,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IProductImportService, ProductImportService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // НАСТРОЙКА OPENAPI (МЕТАДАННЫЕ)
 builder.Services.AddOpenApi(options =>

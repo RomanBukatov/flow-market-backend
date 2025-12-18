@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using FlowMarket.Infrastructure.Persistence;
 using Marketplace.Domain.Entities.Products;
+using AutoMapper;
+using FlowMarket.Application.Catalog.Dto;
 
 namespace FlowMarket.Api.Controllers
 {
@@ -10,22 +12,29 @@ namespace FlowMarket.Api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
         // Внедряем DbContext через конструктор
-        public ProductsController(AppDbContext context)
+        public ProductsController(AppDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/products
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
-            // Читаем из реальной БД
+            // 1. Получаем данные из базы (Entity)
             var products = await _context.Products
-                                         .Include(p => p.Shop) // Подгружаем магазин
+                                         .Include(p => p.Shop)
                                          .ToListAsync();
-            return Ok(products);
+
+            // 2. Превращаем их в красивые DTO
+            var productsDto = _mapper.Map<List<ProductDto>>(products);
+
+            // 3. Отдаем чистый JSON
+            return Ok(productsDto);
         }
 
         // POST: api/products (Временный метод, чтобы добавить товар и проверить)
