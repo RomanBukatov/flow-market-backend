@@ -9,6 +9,7 @@ namespace Marketplace.Domain.Entities.Products
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal BasePrice { get; set; }
+         public string? ImageUrl { get; set; } 
         public double HeightCm { get; set; }
         public double WidthCm { get; set; }
         public int AssemblyTimeMinutes { get; set; } = 30;

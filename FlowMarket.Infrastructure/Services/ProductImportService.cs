@@ -2,7 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using ExcelDataReader;
 using FlowMarket.Application.Catalog.Interfaces; 
-using Marketplace.Domain.Entities.Products; // <--- БЫЛО FlowMarket, СТАЛО Marketplace (как в твоих сущностях)
+using Marketplace.Domain.Entities.Products; 
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +42,13 @@ namespace FlowMarket.Infrastructure.Services
 
                 string description = row[2]?.ToString() ?? "";
 
+                // ЧИТАЕМ КАРТИНКУ (Колонка D / Индекс 3)
+                string? imageUrl = null;
+                if (dataTable.Columns.Count > 3) // Проверка, что колонка вообще есть
+                {
+                    imageUrl = row[3]?.ToString();
+                }
+
                 // Логика поиска и обновления
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name && p.ShopId == shopId);
                 if (product != null)
@@ -49,6 +56,7 @@ namespace FlowMarket.Infrastructure.Services
                     product.BasePrice = price;
                     // Обновляем описание, если нужно
                     if (!string.IsNullOrEmpty(description)) product.Description = description;
+                    if (!string.IsNullOrEmpty(imageUrl)) product.ImageUrl = imageUrl; // <--- ОБНОВЛЯЕМ ССЫЛКУ
                 }
                 else
                 {
@@ -57,6 +65,7 @@ namespace FlowMarket.Infrastructure.Services
                         Name = name,
                         BasePrice = price,
                         Description = description,
+                        ImageUrl = imageUrl, // <--- ЗАПИСЫВАЕМ ССЫЛКУ
                         ShopId = shopId,
                         IsDailyOffer = false,
                         AssemblyTimeMinutes = 30,
