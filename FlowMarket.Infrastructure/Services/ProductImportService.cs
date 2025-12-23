@@ -1,8 +1,11 @@
 using System.IO;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using ExcelDataReader;
-using FlowMarket.Application.Catalog.Interfaces; 
-using Marketplace.Domain.Entities.Products; 
+using FlowMarket.Application.Catalog.Interfaces;
+using Marketplace.Domain.Entities.Products;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -72,6 +75,67 @@ namespace FlowMarket.Infrastructure.Services
                         CompositionJson = "{}", // Инициализируем, чтобы не было null
                         Color = "Микс", // Дефолтное значение
                         Occasion = "Без повода"
+                    };
+                    _context.Products.Add(product);
+                }
+                count++;
+            }
+
+            await _context.SaveChangesAsync();
+            return count;
+        }
+
+        public async Task<int> ImportFromYmlUrlAsync(string url, Guid shopId)
+        {
+            // 1. Скачиваем файл
+            using var httpClient = new HttpClient();
+            var xmlStream = await httpClient.GetStreamAsync(url);
+
+            // 2. Загружаем XML
+            var xdoc = await XDocument.LoadAsync(xmlStream, LoadOptions.None, CancellationToken.None);
+
+            // 3. Ищем товары (в YML они лежат в <shop><offers><offer>)
+            // Учитываем разные неймспейсы, берем просто Descendants("offer")
+            var offers = xdoc.Descendants("offer").ToList();
+            int count = 0;
+
+            foreach (var offer in offers)
+            {
+                // Парсим данные
+                var name = offer.Element("name")?.Value ?? offer.Element("model")?.Value;
+                var priceString = offer.Element("price")?.Value;
+                var description = offer.Element("description")?.Value ?? "";
+                var picture = offer.Element("picture")?.Value; // Ссылка на фото!
+
+                // Категория и параметры (пока пропустим для MVP, берем базу)
+
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                if (!decimal.TryParse(priceString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var price))
+                    price = 0;
+
+                // 4. Логика сохранения (копипаст из Excel метода, можно вынести в отдельный метод)
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name && p.ShopId == shopId);
+
+                if (product != null)
+                {
+                    product.BasePrice = price;
+                    product.ImageUrl = picture; // Обновляем картинку!
+                    if (!string.IsNullOrEmpty(description)) product.Description = description;
+                }
+                else
+                {
+                    product = new Product
+                    {
+                        Name = name,
+                        BasePrice = price,
+                        Description = description,
+                        ImageUrl = picture, // Записываем картинку
+                        ShopId = shopId,
+                        IsDailyOffer = false,
+                        AssemblyTimeMinutes = 30,
+                        CompositionJson = "{}",
+                        Color = "Микс",
+                        Occasion = "Из YML"
                     };
                     _context.Products.Add(product);
                 }

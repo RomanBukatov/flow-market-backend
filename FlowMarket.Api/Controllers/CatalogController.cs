@@ -42,5 +42,23 @@ namespace FlowMarket.Api.Controllers
                 return StatusCode(500, $"Ошибка импорта: {ex.Message}");
             }
         }
+
+        // POST: api/catalog/import-yml
+        [HttpPost("import-yml")]
+        public async Task<IActionResult> ImportYml([FromQuery] string url, [FromQuery] Guid shopId)
+        {
+            if (string.IsNullOrEmpty(url))
+                return BadRequest("URL не указан");
+
+            try
+            {
+                int count = await _importService.ImportFromYmlUrlAsync(url, shopId);
+                return Ok(new { message = $"Успешно загружено из YML: {count} товаров" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ошибка импорта YML: {ex.Message}");
+            }
+        }
     }
 }
