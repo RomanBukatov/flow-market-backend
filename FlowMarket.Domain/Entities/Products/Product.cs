@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Marketplace.Domain.Entities.Base;
-using Marketplace.Domain.Entities.Shops;
+using FlowMarket.Domain.Entities.Base;
+using FlowMarket.Domain.Entities.Shops;
 
-namespace Marketplace.Domain.Entities.Products
+namespace FlowMarket.Domain.Entities.Products
 {
     public class Product : BaseEntity
     {

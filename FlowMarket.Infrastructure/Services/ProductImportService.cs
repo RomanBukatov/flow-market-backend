@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using ExcelDataReader;
 using FlowMarket.Application.Catalog.Interfaces;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Products;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

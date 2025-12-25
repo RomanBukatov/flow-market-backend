@@ -1,8 +1,8 @@
-using Marketplace.Domain.Entities.Base;
-using Marketplace.Domain.Entities.Shops;
+using FlowMarket.Domain.Entities.Base;
+using FlowMarket.Domain.Entities.Shops;
 using System.Collections.Generic;
 
-namespace Marketplace.Domain.Entities.Users
+namespace FlowMarket.Domain.Entities.Users
 {
     public enum UserRole
     {

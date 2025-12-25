@@ -1,6 +1,6 @@
 using AutoMapper;
 using FlowMarket.Application.Catalog.Dto;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Products;
 
 namespace FlowMarket.Application.Common.Mappings
 {

@@ -1,7 +1,7 @@
-using Marketplace.Domain.Entities.Base;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Base;
+using FlowMarket.Domain.Entities.Products;
 
-namespace Marketplace.Domain.Entities.Orders
+namespace FlowMarket.Domain.Entities.Orders
 {
     public class OrderItem : BaseEntity
     {

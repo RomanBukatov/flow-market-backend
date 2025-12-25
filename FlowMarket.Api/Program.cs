@@ -6,75 +6,85 @@ using FlowMarket.Infrastructure.Services;
 using FlowMarket.Infrastructure.Persistence;
 using FlowMarket.Infrastructure.Persistence.Seeding;
 using FlowMarket.Application.Common.Mappings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using FlowMarket.Application.Auth.Interfaces;
+using FlowMarket.Infrastructure.Services.Auth;
 
-// Исправляем кодировку
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-// Регистрируем провайдер кодировок (для поддержки Windows-1251 в Excel)
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Добавляем сервисы
+// --- СЕРВИСЫ ---
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Игнорируем циклические ссылки при сериализации
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddEndpointsApiExplorer();
 
-// ПОДКЛЮЧЕНИЕ БД (PostgreSQL)
+// БД и Сервисы
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IProductImportService, ProductImportService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-// НАСТРОЙКА OPENAPI (МЕТАДАННЫЕ)
-builder.Services.AddOpenApi(options =>
+// JWT AUTH (Это оставляем, это работает и нужно)
+builder.Services.AddAuthentication(options =>
 {
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // Безопасное получение ключа (чтобы не падало с null)
+    var key = builder.Configuration["JwtSettings:Key"] ?? "DEV_KEY_ONLY_FOR_LOCALHOST_DONT_USE_IN_PROD_12345";
+    var issuer = builder.Configuration["JwtSettings:Issuer"];
+    var audience = builder.Configuration["JwtSettings:Audience"];
+
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        document.Info = new()
-        {
-            Title = "MarioFlowers API",
-            Version = "v1",
-            Description = "Backend API для маркетплейса цветов и подарков (MarioFlowers)."
-        };
-        return Task.CompletedTask;
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
 });
+
+// OPENAPI (Простая версия, БЕЗ трансформеров, которые ломают сборку)
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// 2. Настраиваем пайплайн
+// --- ПАЙПЛАЙН ---
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    
-    // Настройка Scalar UI
     app.MapScalarApiReference(options =>
     {
         options
-            .WithTitle("MarioFlowers Docs")
+            .WithTitle("MarioFlowers API")
             .WithTheme(ScalarTheme.DeepSpace)
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
 
-//app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Выключено для VPS
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// АВТО-ЗАПОЛНЕНИЕ БАЗЫ И МИГРАЦИИ
+// МИГРАЦИИ И СИДИНГ
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    
-    // 1. НАКАТЫВАЕМ МИГРАЦИИ (Создаем таблицы, если их нет)
-    // Важно: Это должно быть ДО сидинга!
     context.Database.Migrate(); 
-
-    // 2. ЗАПОЛНЯЕМ ДАННЫМИ (Если таблицы пустые)
     await DbInitializer.SeedAsync(context);
 }
 

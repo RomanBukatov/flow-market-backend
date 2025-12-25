@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Marketplace.Domain.Entities.Base;
-using Marketplace.Domain.Entities.Users;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Base;
+using FlowMarket.Domain.Entities.Users;
+using FlowMarket.Domain.Entities.Products;
 
-namespace Marketplace.Domain.Entities.Shops
+namespace FlowMarket.Domain.Entities.Shops
 {
     public class Shop : BaseEntity
     {

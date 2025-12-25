@@ -1,7 +1,7 @@
 using FlowMarket.Infrastructure.Persistence;
-using Marketplace.Domain.Entities.Users;
-using Marketplace.Domain.Entities.Shops;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Users;
+using FlowMarket.Domain.Entities.Shops;
+using FlowMarket.Domain.Entities.Products;
 
 namespace FlowMarket.Infrastructure.Persistence.Seeding
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FlowMarket.Infrastructure.Persistence;
-using Marketplace.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Products;
 using AutoMapper;
 using FlowMarket.Application.Catalog.Dto;
 

@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Marketplace.Domain.Entities.Base
+namespace FlowMarket.Domain.Entities.Base
 {
     public abstract class BaseEntity
     {

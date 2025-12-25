@@ -1,6 +1,6 @@
-using Marketplace.Domain.Entities.Base;
+using FlowMarket.Domain.Entities.Base;
 
-namespace Marketplace.Domain.Entities.Shops
+namespace FlowMarket.Domain.Entities.Shops
 {
     public class DeliveryZone : BaseEntity
     {
