@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using FlowMarket.Application.Auth.Interfaces;
+using FlowMarket.Infrastructure.DependencyInjection;
 using FlowMarket.Infrastructure.Services.Auth;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -30,6 +31,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
      options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IProductImportService, ProductImportService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // JWT AUTH (Это оставляем, это работает и нужно)
