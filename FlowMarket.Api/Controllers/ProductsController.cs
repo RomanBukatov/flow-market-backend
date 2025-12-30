@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FlowMarket.Infrastructure.Persistence;
-using FlowMarket.Domain.Entities.Products;
+﻿using System.Security.Claims;
 using AutoMapper;
 using FlowMarket.Application.Catalog.Dto;
+using FlowMarket.Application.Products.Interfaces;
+using FlowMarket.Infrastructure.Persistence;
+using FlowMarket.Domain.Entities.Products;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlowMarket.Api.Controllers
 {
@@ -13,49 +16,78 @@ namespace FlowMarket.Api.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IProductManagementService _productService;
 
-        // Внедряем DbContext через конструктор
-        public ProductsController(AppDbContext context, IMapper mapper)
+        public ProductsController(
+            AppDbContext context, 
+            IMapper mapper, 
+            IProductManagementService productService)
         {
             _context = context;
             _mapper = mapper;
+            _productService = productService;
         }
 
         // GET: api/products
+        // Открыт для всех (витрина)
         [HttpGet]
+        [AllowAnonymous] 
         public async Task<IActionResult> GetProducts()
         {
-            // 1. Получаем данные из базы (Entity)
             var products = await _context.Products
                                          .Include(p => p.Shop)
+                                         .Where(p => !p.IsDeleted) // Не показываем удаленные!
+                                         .OrderByDescending(p => p.CreatedAt) // Свежие сверху
                                          .ToListAsync();
 
-            // 2. Превращаем их в красивые DTO
             var productsDto = _mapper.Map<List<ProductDto>>(products);
-
-            // 3. Отдаем чистый JSON
             return Ok(productsDto);
         }
 
-        // POST: api/products (Временный метод, чтобы добавить товар и проверить)
+        // POST: api/products
+        // Только для Селлеров (создание)
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(string name, decimal price)
+        [Authorize] 
+        public async Task<IActionResult> CreateProduct(CreateProductDto dto)
         {
-            var product = new Product
+            try
             {
-                Name = name,
-                BasePrice = price,
-                Description = "Test Description",
-                ShopId = Guid.Empty, // Тут упадет, если нет магазина, но для теста соединения пойдет
-                // Хак: чтобы не падало, создадим заглушку магазина, если надо, 
-                // но пока просто проверим, дойдет ли запрос до базы.
-            };
+                var userId = GetCurrentUserId();
+                var result = await _productService.CreateProductAsync(dto, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-            // В реале тут будет сложная логика, пока просто тест соединения
-            // _context.Products.Add(product);
-            // await _context.SaveChangesAsync();
+        // DELETE: api/products/{id}
+        // Только для Владельца (удаление)
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                await _productService.DeleteProductAsync(id, userId);
+                return Ok(new { message = "Товар успешно удален (скрыт)" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Вспомогательный метод для получения ID из токена
+        private Guid GetCurrentUserId()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) 
+                throw new Exception("Не удалось определить пользователя");
             
-            return Ok("Database connection is OK!");
+            return Guid.Parse(userIdString);
         }
     }
 }
