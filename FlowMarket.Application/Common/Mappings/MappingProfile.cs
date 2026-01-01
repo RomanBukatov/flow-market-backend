@@ -1,6 +1,8 @@
 using AutoMapper;
 using FlowMarket.Application.Catalog.Dto;
+using FlowMarket.Application.Shops.Dto;
 using FlowMarket.Domain.Entities.Products;
+using FlowMarket.Domain.Entities.Shops;
 
 namespace FlowMarket.Application.Common.Mappings
 {
@@ -16,6 +18,10 @@ namespace FlowMarket.Application.Common.Mappings
                 // Если ImageUrl пустой, ставим заглушку. Если есть - берем его.
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
                     string.IsNullOrEmpty(src.ImageUrl) ? "https://placehold.co/600x400" : src.ImageUrl));
+
+            CreateMap<CreateProductDto, Product>();
+            CreateMap<CreateShopDto, Shop>();
+            CreateMap<Shop, ShopDto>();
         }
     }
 }
