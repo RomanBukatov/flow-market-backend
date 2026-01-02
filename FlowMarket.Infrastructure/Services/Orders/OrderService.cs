@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FlowMarket.Application.Orders.Dto;
 using FlowMarket.Application.Orders.Interfaces;
+using FlowMarket.Application.Payments.Interfaces;
 using FlowMarket.Domain.Entities.Orders;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace FlowMarket.Infrastructure.Services.Orders
     public class OrderService : IOrderService
     {
         private readonly AppDbContext _context;
+        private readonly IPaymentGateway _paymentGateway;
 
-        public OrderService(AppDbContext context)
+        public OrderService(AppDbContext context, IPaymentGateway paymentGateway)
         {
             _context = context;
+            _paymentGateway = paymentGateway;
         }
 
         public async Task<OrderResultDto> CreateOrderAsync(CreateOrderDto dto, Guid? userId)
@@ -96,13 +99,18 @@ namespace FlowMarket.Infrastructure.Services.Orders
             // 5. Сохраняем всё одним махом (Транзакция)
             await _context.SaveChangesAsync();
 
-            // 6. Возврат
+            // 6. ГЕНЕРАЦИЯ ССЫЛКИ ЧЕРЕЗ ШЛЮЗ
+            string paymentUrl = await _paymentGateway.CreatePaymentLinkAsync(
+                order.Id,
+                order.TotalAmount,
+                $"Заказ {order.Id} на FlowMarket"
+            );
+
             return new OrderResultDto
             {
                 OrderId = order.Id,
                 TotalAmount = order.TotalAmount,
-                // Генерация ссылки на оплату (заглушка)
-                PaymentLink = $"https://pay.marioflowers.ru/checkout?orderId={order.Id}"
+                PaymentLink = paymentUrl
             };
         }
     }
