@@ -44,5 +44,25 @@ namespace FlowMarket.Api.Controllers
             var result = await _shopService.GetUserShopsAsync(userId);
             return Ok(result);
         }
+
+        // PUT: api/shops
+        [HttpPut]
+        public async Task<IActionResult> UpdateShop(UpdateShopDto dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+
+            var userId = Guid.Parse(userIdString);
+
+            try
+            {
+                var result = await _shopService.UpdateShopAsync(dto, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

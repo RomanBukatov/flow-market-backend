@@ -10,4 +10,5 @@ public interface IDeliveryZoneService
     Task<DeliveryZoneDto> CreateZoneAsync(CreateDeliveryZoneDto dto, Guid userId);
     Task<List<DeliveryZoneDto>> GetMyZonesAsync(Guid userId);
     Task DeleteZoneAsync(Guid zoneId, Guid userId);
+    Task<decimal> CalculateDeliveryPriceAsync(CalculateDeliveryDto dto);
 }

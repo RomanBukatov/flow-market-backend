@@ -59,6 +59,22 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
+        // POST: api/DeliveryZones/calculate
+        [HttpPost("calculate")]
+        [AllowAnonymous] // Покупателю не обязательно логиниться, чтобы узнать цену
+        public async Task<IActionResult> CalculateDelivery(CalculateDeliveryDto dto)
+        {
+            try
+            {
+                var price = await _zoneService.CalculateDeliveryPriceAsync(dto);
+                return Ok(new { price = price, message = "Доставка возможна" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         private Guid GetCurrentUserId()
         {
             var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -42,5 +42,29 @@ namespace FlowMarket.Infrastructure.Services.Shops
 
             return _mapper.Map<List<ShopDto>>(shops);
         }
+
+        public async Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId)
+        {
+            var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == userId);
+
+            if (shop == null)
+            {
+                throw new Exception("Магазин не найден. Сначала создайте его.");
+            }
+
+            // Обновляем поля, если они переданы (или просто перезаписываем)
+            // Можно добавить проверки на null/empty, но для MVP перезапишем всё
+            if (!string.IsNullOrEmpty(dto.Description)) shop.Description = dto.Description;
+            if (!string.IsNullOrEmpty(dto.LogoUrl)) shop.LogoUrl = dto.LogoUrl;
+            if (!string.IsNullOrEmpty(dto.City)) shop.City = dto.City;
+
+            // Координаты обновляем всегда
+            shop.Latitude = dto.Latitude;
+            shop.Longitude = dto.Longitude;
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ShopDto>(shop);
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace FlowMarket.Application.Shops.Interfaces
     {
         Task<ShopDto> CreateShopAsync(CreateShopDto dto, Guid userId);
         Task<List<ShopDto>> GetUserShopsAsync(Guid userId);
+        Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId);
     }
 }
