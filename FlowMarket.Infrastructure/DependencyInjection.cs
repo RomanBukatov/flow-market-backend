@@ -1,6 +1,8 @@
 ﻿using FlowMarket.Application.Common.Interfaces;
 using FlowMarket.Application.Orders.Interfaces;
 using FlowMarket.Application.Payments.Interfaces;
+using FlowMarket.Application.Shops.Interfaces;
+using FlowMarket.Infrastructure.Services.Shops;
 using FlowMarket.Application.Products.Interfaces;
 using FlowMarket.Application.Shops.Interfaces;
 using FlowMarket.Infrastructure.Persistence;
@@ -31,6 +33,7 @@ namespace FlowMarket.Infrastructure.DependencyInjection
             services.AddMemoryCache(); // Встроенный кэш .NET
             services.AddScoped<ICacheService, MemoryCacheService>(); // Наша обертка
             services.AddScoped<INotificationService, ConsoleNotificationService>();
+            services.AddScoped<IDeliveryZoneService, DeliveryZoneService>();
 
             // РЕГИСТРАЦИЯ ОПЛАТЫ (Пока Mock, потом заменим на Real)
             services.AddScoped<IPaymentGateway, MockPaymentGateway>();

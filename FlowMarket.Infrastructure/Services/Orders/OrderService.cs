@@ -60,6 +60,26 @@ namespace FlowMarket.Infrastructure.Services.Orders
             return result;
         }
 
+        public async Task ChangeOrderStatusAsync(Guid subOrderId, OrderStatus newStatus, Guid userId)
+        {
+            var subOrder = await _context.SubOrders
+                .Include(so => so.Shop)
+                .FirstOrDefaultAsync(so => so.Id == subOrderId);
+
+            if (subOrder == null)
+            {
+                throw new Exception("Заказ не найден");
+            }
+
+            if (subOrder.Shop.OwnerId != userId)
+            {
+                throw new Exception("Нет прав");
+            }
+
+            subOrder.Status = newStatus;
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<OrderResultDto> CreateOrderAsync(CreateOrderDto dto, Guid? userId)
         {
             // 1. Получаем товары из БД

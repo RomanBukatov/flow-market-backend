@@ -9,5 +9,6 @@ namespace FlowMarket.Domain.Entities.Shops
         public decimal Price { get; set; }
         public decimal? FreeDeliveryThreshold { get; set; }
         public Guid ShopId { get; set; }
+        public Shop Shop { get; set; }
     }
 }

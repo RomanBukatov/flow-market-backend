@@ -3,6 +3,8 @@ using FlowMarket.Application.Catalog.Dto;
 using FlowMarket.Application.Shops.Dto;
 using FlowMarket.Domain.Entities.Products;
 using FlowMarket.Domain.Entities.Shops;
+using FlowMarket.Application.Shops.Dto; 
+using FlowMarket.Domain.Entities.Shops; 
 
 namespace FlowMarket.Application.Common.Mappings
 {
@@ -22,6 +24,8 @@ namespace FlowMarket.Application.Common.Mappings
             CreateMap<CreateProductDto, Product>();
             CreateMap<CreateShopDto, Shop>();
             CreateMap<Shop, ShopDto>();
+            CreateMap<CreateDeliveryZoneDto, DeliveryZone>();
+            CreateMap<DeliveryZone, DeliveryZoneDto>();
         }
     }
 }

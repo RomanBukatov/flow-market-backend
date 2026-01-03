@@ -55,5 +55,24 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
+        [HttpPut("{subOrderId}/status")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatus(Guid subOrderId, [FromBody] UpdateOrderStatusDto dto)
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+                var userId = Guid.Parse(userIdString);
+
+                await _orderService.ChangeOrderStatusAsync(subOrderId, dto.Status, userId);
+                return Ok(new { message = "Статус обновлен" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }
