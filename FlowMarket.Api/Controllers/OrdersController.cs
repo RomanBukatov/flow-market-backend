@@ -17,6 +17,19 @@ namespace FlowMarket.Api.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet("seller")]
+        [Authorize] // Только для залогиненных
+        public async Task<IActionResult> GetSellerOrders()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+            
+            var userId = Guid.Parse(userIdString);
+            
+            var orders = await _orderService.GetSellerOrdersAsync(userId);
+            return Ok(orders);
+        }
+
         // POST: api/orders
         [HttpPost]
         [AllowAnonymous] // Разрешаем гостям
@@ -41,5 +54,6 @@ namespace FlowMarket.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
     }
 }
