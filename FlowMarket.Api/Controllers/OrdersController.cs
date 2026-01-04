@@ -74,5 +74,16 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
+        [HttpGet("my-history")]
+        [Authorize]
+        public async Task<IActionResult> GetMyHistory()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+
+            var orders = await _orderService.GetBuyerOrdersAsync(Guid.Parse(userIdString));
+            return Ok(orders);
+        }
+
     }
 }

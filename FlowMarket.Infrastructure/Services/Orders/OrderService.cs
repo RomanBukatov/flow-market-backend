@@ -64,16 +64,30 @@ namespace FlowMarket.Infrastructure.Services.Orders
         {
             var subOrder = await _context.SubOrders
                 .Include(so => so.Shop)
+                .Include(so => so.Order) // <-- Важно: грузим родительский заказ
+                .ThenInclude(o => o.Buyer) // <-- Важно: и покупателя
                 .FirstOrDefaultAsync(so => so.Id == subOrderId);
 
-            if (subOrder == null)
-            {
-                throw new Exception("Заказ не найден");
-            }
+            if (subOrder == null) throw new Exception("Заказ не найден");
+            if (subOrder.Shop.OwnerId != userId) throw new Exception("Нет прав");
 
-            if (subOrder.Shop.OwnerId != userId)
+            // ЛОГИКА БОНУСОВ
+            // Если статус меняется на Completed (и раньше не был Completed)
+            if (newStatus == OrderStatus.Completed && subOrder.Status != OrderStatus.Completed)
             {
-                throw new Exception("Нет прав");
+                // Проверяем, есть ли зарегистрированный покупатель
+                if (subOrder.Order.Buyer != null)
+                {
+                    // Начисляем 5% от суммы подзаказа (ShopAmount + Commission, то есть полной цены товаров этого селлера)
+                    // ShopAmount это 80%, значит полная цена = ShopAmount / 0.8
+                    // Или проще: возьмем сумму товаров из Items, но лениво считать.
+                    // Грубо: (ShopAmount + PlatformCommission) * 0.05
+
+                    var fullPrice = subOrder.ShopAmount + subOrder.PlatformCommission;
+                    var bonus = fullPrice * 0.05m; // 5%
+
+                    subOrder.Order.Buyer.BonusBalance += bonus;
+                }
             }
 
             subOrder.Status = newStatus;
@@ -168,6 +182,26 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 TotalAmount = order.TotalAmount,
                 PaymentLink = paymentUrl
             };
+        }
+
+        public async Task<List<BuyerOrderDto>> GetBuyerOrdersAsync(Guid buyerId)
+        {
+            var orders = await _context.Orders
+                .Include(o => o.SubOrders) // Грузим подзаказы, чтобы понять статус
+                .Where(o => o.BuyerId == buyerId)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            return orders.Select(o => new BuyerOrderDto
+            {
+                OrderId = o.Id,
+                CreatedAt = o.CreatedAt,
+                TotalAmount = o.TotalAmount,
+                // Простая логика: если все подзаказы завершены - Completed, иначе In Progress
+                StatusSummary = o.SubOrders.All(so => so.Status == OrderStatus.Completed)
+                    ? "Выполнен"
+                    : "В работе"
+            }).ToList();
         }
     }
 }
