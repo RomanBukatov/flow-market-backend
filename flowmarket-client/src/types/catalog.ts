@@ -10,3 +10,11 @@ export interface Product {
   composition: string;
   assemblyTimeMinutes: number;
 }
+
+export interface PagedResponse<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}

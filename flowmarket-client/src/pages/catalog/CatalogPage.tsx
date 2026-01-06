@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, Spin, FloatButton } from 'antd';
+import { Typography, Spin, FloatButton, Pagination } from 'antd';
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { catalogApi } from '../../api/catalog';
@@ -8,11 +8,14 @@ import { CartDrawer } from '../../components/CartDrawer';
 import { ProductGrid } from '../../components/ProductGrid';
 
 const { Title } = Typography;
+const PAGE_SIZE = 48;
 
 export const CatalogPage = () => {
-  const { data: products, isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: catalogApi.getProducts,
+  const [page, setPage] = useState(1);
+  
+  const { data: pagedResponse, isLoading } = useQuery({
+    queryKey: ['products', page],
+    queryFn: () => catalogApi.getProducts(page, PAGE_SIZE),
   });
 
   // Достаем количество товаров для бейджика на кнопке
@@ -31,7 +34,18 @@ export const CatalogPage = () => {
         </div>
 
         {/* Сетка товаров теперь изолирована и не будет перерисовываться при открытии корзины */}
-        <ProductGrid products={products} />
+        <ProductGrid products={pagedResponse?.items} />
+
+        {/* Пагинация */}
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <Pagination
+            current={page}
+            total={pagedResponse?.totalCount || 0}
+            pageSize={PAGE_SIZE}
+            onChange={setPage}
+            showSizeChanger={false}
+          />
+        </div>
       </div>
 
       {/* ПЛАВАЮЩАЯ КНОПКА КОРЗИНЫ (Всегда видна) */}

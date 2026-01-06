@@ -1,6 +1,7 @@
 import { Drawer, List, Button, Typography, Image, Space, Empty } from 'antd';
 import { DeleteOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
+import { useNavigate } from 'react-router-dom';
 
 interface CartDrawerProps {
   open: boolean;
@@ -9,6 +10,7 @@ interface CartDrawerProps {
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
   const { items, removeFromCart, getTotalPrice } = useCartStore();
+  const navigate = useNavigate();
 
   return (
     <Drawer 
@@ -22,7 +24,7 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
           <Typography.Title level={4}>
             Итого: {getTotalPrice()} ₽
           </Typography.Title>
-          <Button type="primary" size="large" block disabled={items.length === 0}>
+          <Button type="primary" size="large" block disabled={items.length === 0} onClick={() => { onClose(); navigate('/checkout'); }}>
             Оформить заказ
           </Button>
         </div>

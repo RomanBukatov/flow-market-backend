@@ -1,9 +1,11 @@
 import { api } from './instance';
-import type { Product } from '../types/catalog';
+import type { Product, PagedResponse } from '../types/catalog';
 
 export const catalogApi = {
-  getProducts: async (): Promise<Product[]> => {
-    const response = await api.get<Product[]>('/Products');
+  getProducts: async (pageNumber = 1, pageSize = 12): Promise<PagedResponse<Product>> => {
+    const response = await api.get<PagedResponse<Product>>('/Products', {
+      params: { page: pageNumber, pageSize }
+    });
     return response.data;
   }
 };

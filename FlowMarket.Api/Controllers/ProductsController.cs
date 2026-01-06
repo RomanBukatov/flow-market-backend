@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
 using FlowMarket.Application.Catalog.Dto;
+using FlowMarket.Application.Common.Models;
 using FlowMarket.Application.Products.Interfaces;
 using FlowMarket.Infrastructure.Persistence;
 using FlowMarket.Domain.Entities.Products;
@@ -28,20 +29,34 @@ namespace FlowMarket.Api.Controllers
             _productService = productService;
         }
 
-        // GET: api/products
-        // Открыт для всех (витрина)
+        // GET: api/products?page=1&pageSize=12
         [HttpGet]
         [AllowAnonymous] 
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 12)
         {
-            var products = await _context.Products
-                                         .Include(p => p.Shop)
-                                         .Where(p => !p.IsDeleted) // Не показываем удаленные!
-                                         .OrderByDescending(p => p.CreatedAt) // Свежие сверху
-                                         .ToListAsync();
+            // 1. Создаем запрос (еще не выполняем)
+            var query = _context.Products
+                                .Include(p => p.Shop)
+                                .Where(p => !p.IsDeleted)
+                                .OrderByDescending(p => p.CreatedAt)
+                                .AsQueryable();
 
+            // 2. Считаем общее количество (быстрый запрос COUNT)
+            var totalCount = await query.CountAsync();
+
+            // 3. Берем нужную страницу (LIMIT/OFFSET)
+            var products = await query
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync();
+
+            // 4. Маппим
             var productsDto = _mapper.Map<List<ProductDto>>(products);
-            return Ok(productsDto);
+
+            // 5. Возвращаем обертку
+            var result = new PagedResult<ProductDto>(productsDto, totalCount, page, pageSize);
+            
+            return Ok(result);
         }
 
         // POST: api/products
