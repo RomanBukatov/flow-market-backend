@@ -59,6 +59,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  // Разрешаем всем (для разработки)
+              .AllowAnyMethod()  // GET, POST, PUT, DELETE...
+              .AllowAnyHeader(); // Любые заголовки
+    });
+});
+
 // OPENAPI (Простая версия, БЕЗ трансформеров, которые ломают сборку)
 builder.Services.AddOpenApi();
 
@@ -78,6 +88,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection(); // Выключено для VPS
+
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
