@@ -16,8 +16,7 @@ export const LoginPage = () => {
       message.success(`Привет, ${data.fullName}!`);
       // Сохраняем токен
       localStorage.setItem('token', data.token);
-      // В будущем тут будет редирект на /dashboard
-      console.log('Token saved:', data.token);
+      window.location.href = '/catalog'; // Простой редирект
     },
     onError: (error: any) => {
       message.error(error.response?.data?.message || 'Ошибка входа');
