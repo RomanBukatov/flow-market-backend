@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Typography, Spin, FloatButton, Pagination } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
+import { Typography, Spin, FloatButton, Pagination, Segmented, Button } from 'antd';
+import { ShoppingCartOutlined, UserOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
 import { CartDrawer } from '../../components/CartDrawer';
@@ -12,7 +13,9 @@ const PAGE_SIZE = 48;
 
 export const CatalogPage = () => {
   const [page, setPage] = useState(1);
-  
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const navigate = useNavigate();
+
   const { data: pagedResponse, isLoading } = useQuery({
     queryKey: ['products', page],
     queryFn: () => catalogApi.getProducts(page, PAGE_SIZE),
@@ -28,13 +31,33 @@ export const CatalogPage = () => {
 
   return (
     <>
-      <div style={{ padding: '20px', maxWidth: 1200, margin: '0 auto', paddingBottom: 100 }}>
-        <div style={{ marginBottom: 20 }}>
+      <div style={{ padding: '10px', maxWidth: 1200, margin: '0 auto', paddingBottom: 100 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <Title level={2} style={{ margin: 0, color: '#ff4d4f' }}>Витрина</Title>
+
+          <div style={{ display: 'flex', gap: 10 }}> {/* Обертка для кнопок */}
+              {/* Кнопка Профиля */}
+              <Button
+                icon={<UserOutlined />}
+                onClick={() => navigate('/profile')}
+              >
+                Профиль
+              </Button>
+
+              {/* Переключатель Вида */}
+              <Segmented
+                options={[
+                  { value: 'grid', icon: <AppstoreOutlined /> },
+                  { value: 'list', icon: <BarsOutlined /> },
+                ]}
+                value={viewMode}
+                onChange={setViewMode}
+              />
+          </div>
         </div>
 
         {/* Сетка товаров теперь изолирована и не будет перерисовываться при открытии корзины */}
-        <ProductGrid products={pagedResponse?.items} />
+        <ProductGrid products={pagedResponse?.items} viewMode={viewMode} />
 
         {/* Пагинация */}
         <div style={{ textAlign: 'center', marginTop: 24 }}>

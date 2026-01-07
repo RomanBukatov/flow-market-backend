@@ -1,0 +1,73 @@
+/* Мягкий, "игрушечный" шрифт */
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+
+body {
+  /* Теплый светло-серый фон (не больнично-белый) */
+  background-color: #f1f3f5;
+  font-family: 'Varela Round', sans-serif;
+  color: #495057;
+}
+
+/* КАРТОЧКИ (Claymorphism: мягкие, объемные) */
+.ant-card {
+  border: none !important;
+  /* Мягкая тень */
+  box-shadow:
+    10px 10px 30px rgba(174, 174, 192, 0.4),
+    -10px -10px 30px #ffffff !important;
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    15px 15px 40px rgba(174, 174, 192, 0.5),
+    -10px -10px 30px #ffffff !important;
+}
+
+/* КНОПКИ (Игрушечный 3D эффект) */
+.ant-btn-primary {
+  border: none !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  /* Тень уже задана в main.tsx, тут только анимация */
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transform: translateY(0);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(6px) !important; /* Кнопка вдавливается */
+  box-shadow: 0 0 0 #e03e3e !important;  /* Тень исчезает */
+}
+
+/* Заголовки */
+h1, h2, h3 {
+  color: #343a40 !important;
+}
+
+/* Адаптив для телефонов */
+@media (max-width: 576px) {
+  .ant-card-body {
+    padding: 12px !important; /* Уменьшаем отступы внутри карточки */
+  }
+  
+  .ant-card-meta-title {
+    font-size: 14px !important; /* Уменьшаем заголовок */
+    white-space: normal !important; /* Разрешаем перенос текста */
+    height: 40px; /* Фиксируем высоту заголовка (2 строки) */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Кнопка "В корзину" станет компактнее */
+  .ant-btn-primary {
+    font-size: 12px !important;
+    height: 32px !important;
+    padding: 0 10px !important;
+  }
+  
+  /* Цена */
+  .product-price {
+    font-size: 14px !important;
+  }
+}

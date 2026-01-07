@@ -1,65 +1,127 @@
 import React from 'react';
 import { Card, Button, Row, Col, Tag, Badge, message } from 'antd';
-import { ShoppingCartOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined } from '@ant-design/icons';
 import type { Product } from '../types/catalog';
 import { useCartStore } from '../store/cartStore';
-
-const { Meta } = Card;
+import styles from './ProductCard.module.css';
 
 interface ProductGridProps {
   products: Product[] | undefined;
+  viewMode: 'grid' | 'list';
 }
 
-// Выносим компонент, чтобы он не зависел от стейта родителя
-export const ProductGrid = React.memo(({ products }: ProductGridProps) => {
+export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
 
+  // Если режим СПИСОК
+  if (viewMode === 'list') {
+    return (
+      <Row gutter={[16, 16]}>
+        {products?.map((product) => (
+          <Col span={24} key={product.id}>
+            <Badge.Ribbon
+              text="Собран сегодня"
+              color="green"
+              style={{ display: product.isDailyOffer ? 'block' : 'none' }}
+            >
+              <Card hoverable bodyStyle={{ padding: 12 }}>
+                <Row gutter={16} align="middle">
+                  <Col flex="100px">
+                    <img
+                      src={product.imageUrl && product.imageUrl.startsWith('http') ? product.imageUrl : "https://placehold.co/600x400"}
+                      style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 12 }}
+                    />
+                  </Col>
+                  <Col flex="auto">
+                    <div style={{ fontSize: 16, fontWeight: 'bold' }}>{product.name}</div>
+                    <div style={{ color: '#888' }}>{product.shopName}</div>
+                    <Tag icon={<ClockCircleOutlined />} color="warning">{product.assemblyTimeMinutes} мин</Tag>
+                  </Col>
+                  <Col>
+                     <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{product.price} ₽</div>
+                     <Button type="primary" onClick={() => {
+                       addToCart(product);
+                       message.success('Добавлено');
+                     }}>В корзину</Button>
+                  </Col>
+                </Row>
+              </Card>
+            </Badge.Ribbon>
+          </Col>
+        ))}
+      </Row>
+    );
+  }
+
+  // Если режим СЕТКА
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[12, 12]}>
       {products?.map((product) => (
-        <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
-          <Badge.Ribbon 
-            text="Собран сегодня" 
-            color="green" 
+        <Col
+          xs={12}
+          sm={8}
+          md={6}
+          lg={6}
+          key={product.id}
+        >
+          <Badge.Ribbon
+            text="Собран сегодня"
+            color="green"
             style={{ display: product.isDailyOffer ? 'block' : 'none' }}
           >
             <Card
               hoverable
+              bodyStyle={{ padding: 12 }}
               cover={
                 <div style={{ height: 200, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '16px 16px 0 0' }}>
-                  <img 
-                    alt={product.name} 
-                    src={product.imageUrl && product.imageUrl.startsWith('http') ? product.imageUrl : "https://placehold.co/600x400"} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    loading="lazy" // Ленивая загрузка картинок (ускоряет)
+                  <img
+                    alt={product.name}
+                    src={product.imageUrl && product.imageUrl.startsWith('http') ? product.imageUrl : "https://placehold.co/600x400"}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    loading="lazy"
                   />
                 </div>
               }
-              actions={[
-                <div key="price" style={{ fontWeight: 'bold', fontSize: 16 }}>{product.price} ₽</div>,
+            >
+              <div style={{ padding: '0 4px' }}>
+                {/* ЦЕНА */}
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#333', marginBottom: 4 }}>
+                  {product.price} ₽
+                </div>
+
+                {/* НАЗВАНИЕ (Ровно 2 строки) */}
+                <div style={{ 
+                  fontSize: 14, 
+                  lineHeight: '18px', 
+                  height: 36,
+                  overflow: 'hidden', 
+                  display: '-webkit-box', 
+                  WebkitLineClamp: 2, 
+                  WebkitBoxOrient: 'vertical',
+                  marginBottom: 8,
+                  color: '#555'
+                }}>
+                  {product.name}
+                </div>
+
+                {/* ВРЕМЯ */}
+                <div style={{ fontSize: 12, color: '#999', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <ClockCircleOutlined /> {product.assemblyTimeMinutes} мин.
+                </div>
+
+                {/* КНОПКА */}
                 <Button 
                   type="primary" 
-                  icon={<ShoppingCartOutlined />}
+                  block 
+                  className={styles.cartBtn}
                   onClick={() => {
                     addToCart(product);
-                    message.success('Добавлено'); 
+                    message.success('Добавлено');
                   }}
                 >
                   В корзину
                 </Button>
-              ]}
-            >
-              <Meta
-                title={product.name}
-                description={
-                  <div>
-                    <div style={{ marginBottom: 5, color: '#888' }}>🏪 {product.shopName}</div>
-                    <Tag icon={<ClockCircleOutlined />} color="warning">
-                      {product.assemblyTimeMinutes} мин
-                    </Tag>
-                  </div>
-                }
-              />
+              </div>
             </Card>
           </Badge.Ribbon>
         </Col>

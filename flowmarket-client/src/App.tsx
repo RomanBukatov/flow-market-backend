@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/auth/LoginPage';
 import { CatalogPage } from './pages/catalog/CatalogPage';
 import { CheckoutPage } from './pages/checkout/CheckoutPage';
+import { ProfilePage } from './pages/profile/ProfilePage';
 
 function App() {
   const token = localStorage.getItem('token');
@@ -12,6 +13,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* Если есть токен - идем в каталог, иначе на вход */}
         <Route path="/" element={token ? <Navigate to="/catalog" /> : <Navigate to="/login" />} />

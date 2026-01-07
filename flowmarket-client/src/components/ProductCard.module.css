@@ -1,0 +1,52 @@
+/* ProductCard.module.css */
+
+.shopName {
+  color: #888;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: block;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  gap: 8px; /* Расстояние между ценой и кнопкой */
+}
+
+.price {
+  font-weight: 800;
+  font-size: 18px;
+  white-space: nowrap; /* Цена не переносится */
+  color: #333;
+}
+
+/* Адаптив для кнопки на маленьких экранах */
+.cartBtn {
+  font-size: 13px !important;
+  padding: 0 12px !important;
+  height: 36px !important;
+  flex-shrink: 0; /* Не сжимать кнопку */
+}
+
+/* Адаптив для совсем узких экранов (телефоны < 400px) */
+@media (max-width: 400px) {
+  .cardFooter {
+    flex-direction: column; /* Кнопка под ценой */
+    align-items: stretch; /* Растянуть на всю ширину */
+  }
+  
+  .price {
+    font-size: 16px;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .cartBtn {
+    width: 100%;
+  }
+}

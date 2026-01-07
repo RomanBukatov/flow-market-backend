@@ -18,21 +18,27 @@ const queryClient = new QueryClient({
 // Настройка Темы "Mario"
 const marioTheme = {
   token: {
-    colorPrimary: '#ff4d4f', // Яркий красный (как кепка Марио)
-    borderRadius: 16,        // Сильные скругления (Claymorphism)
-    fontFamily: 'Inter, system-ui, sans-serif',
-    colorBgLayout: '#f0f2f5', // Светлый фон
+    colorPrimary: '#ff6b6b', // Мягкий кораллово-красный (вместо ядерного #ff4d4f)
+    colorTextHeading: '#495057', // Темно-серый текст (не черный)
+    borderRadius: 20,
+    fontFamily: 'Varela Round, sans-serif',
   },
   components: {
     Button: {
-      colorPrimary: '#ff4d4f',
-      algorithm: true, // Включить алгоритмы генерации оттенков
+      colorPrimary: '#ff6b6b',
+      algorithm: true,
       fontWeight: 700,
-      boxShadow: '0 4px 0 #b3202d', // "Толстая" тень снизу (эффект нажатия/объема)
+      // Тень делаем темнее основного цвета
+      boxShadow: '0 6px 0 #e03e3e', 
     },
     Card: {
-      boxShadow: '0 8px 20px rgba(0,0,0,0.08)', // Мягкая тень карточек
-      borderRadius: 20,
+      borderRadius: 24,
+      boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+    },
+    Input: {
+      borderRadius: 12,
+      controlHeight: 45, // Повыше
+      colorBgContainer: '#f8f9fa', // Чуть серый фон инпутов
     }
   }
 }
