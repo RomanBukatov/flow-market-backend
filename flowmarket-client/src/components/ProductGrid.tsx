@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Button, Row, Col, Tag, Badge, message } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types/catalog';
 import { useCartStore } from '../store/cartStore';
 import styles from './ProductCard.module.css';
@@ -12,6 +13,7 @@ interface ProductGridProps {
 
 export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
+  const navigate = useNavigate();
 
   // Если режим СПИСОК
   if (viewMode === 'list') {
@@ -24,7 +26,8 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
               color="green"
               style={{ display: product.isDailyOffer ? 'block' : 'none' }}
             >
-              <Card hoverable bodyStyle={{ padding: 12 }}>
+              <div onClick={() => navigate('/product/' + product.id)} style={{ cursor: 'pointer' }}>
+                <Card hoverable bodyStyle={{ padding: 12 }}>
                 <Row gutter={16} align="middle">
                   <Col flex="100px">
                     <img
@@ -45,7 +48,8 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                      }}>В корзину</Button>
                   </Col>
                 </Row>
-              </Card>
+                </Card>
+              </div>
             </Badge.Ribbon>
           </Col>
         ))}
@@ -69,9 +73,10 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
             color="green"
             style={{ display: product.isDailyOffer ? 'block' : 'none' }}
           >
-            <Card
-              hoverable
-              bodyStyle={{ padding: 12 }}
+            <div onClick={() => navigate('/product/' + product.id)} style={{ cursor: 'pointer' }}>
+              <Card
+                hoverable
+                bodyStyle={{ padding: 12 }}
               cover={
                 <div style={{ height: 200, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '16px 16px 0 0' }}>
                   <img
@@ -122,7 +127,8 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                   В корзину
                 </Button>
               </div>
-            </Card>
+              </Card>
+            </div>
           </Badge.Ribbon>
         </Col>
       ))}

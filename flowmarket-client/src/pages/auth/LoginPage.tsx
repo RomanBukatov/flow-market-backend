@@ -3,6 +3,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import type { LoginDto } from '../../types/auth';
+import { Link } from 'react-router-dom';
 
 const { Title } = Typography;
 
@@ -35,7 +36,7 @@ export const LoginPage = () => {
       height: '100vh', 
       background: '#f0f2f5' 
     }}>
-      <Card style={{ width: 380, textAlign: 'center' }}>
+      <Card className="static-card" style={{ width: 380, textAlign: 'center' }}>
         <Title level={2} style={{ color: '#ff4d4f', marginBottom: 30 }}>
           Mario Flowers
         </Title>
@@ -72,6 +73,10 @@ export const LoginPage = () => {
             </Button>
           </Form.Item>
         </Form>
+
+        <div style={{ marginTop: 16 }}>
+          <Link to="/register">Нет аккаунта? Зарегистрироваться</Link>
+        </div>
       </Card>
     </div>
   );

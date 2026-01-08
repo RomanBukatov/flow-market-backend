@@ -1,8 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/auth/LoginPage';
+import { RegisterPage } from './pages/auth/RegisterPage';
 import { CatalogPage } from './pages/catalog/CatalogPage';
+import { ProductPage } from './pages/catalog/ProductPage';
 import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { RequireAuth } from './components/RequireAuth';
+import { MainLayout } from './layout/MainLayout';
 
 function App() {
   const token = localStorage.getItem('token');
@@ -11,9 +15,15 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Все эти страницы будут внутри MainLayout */}
+        <Route element={<MainLayout />}>
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+        </Route>
 
         {/* Если есть токен - идем в каталог, иначе на вход */}
         <Route path="/" element={token ? <Navigate to="/catalog" /> : <Navigate to="/login" />} />

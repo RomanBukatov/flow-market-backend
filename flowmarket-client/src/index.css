@@ -71,3 +71,15 @@ h1, h2, h3 {
     font-size: 14px !important;
   }
 }
+
+/* Статичная карточка (без подпрыгивания) */
+.static-card {
+  transform: none !important;
+  transition: none !important;
+}
+
+.static-card:hover {
+  transform: none !important;
+  /* Тень можно оставить или убрать, по вкусу */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}

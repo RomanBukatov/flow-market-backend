@@ -7,5 +7,10 @@ export const catalogApi = {
       params: { page: pageNumber, pageSize }
     });
     return response.data;
+  },
+
+  getProductById: async (id: string): Promise<Product> => {
+    const response = await api.get<Product>(`/Products/${id}`);
+    return response.data;
   }
 };

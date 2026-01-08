@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Typography, Spin, FloatButton, Pagination, Segmented, Button } from 'antd';
-import { ShoppingCartOutlined, UserOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
+import { Typography, Spin, FloatButton, Pagination, Segmented } from 'antd';
+import { ShoppingCartOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
 import { CartDrawer } from '../../components/CartDrawer';
@@ -14,7 +13,6 @@ const PAGE_SIZE = 48;
 export const CatalogPage = () => {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const navigate = useNavigate();
 
   const { data: pagedResponse, isLoading } = useQuery({
     queryKey: ['products', page],
@@ -35,25 +33,14 @@ export const CatalogPage = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <Title level={2} style={{ margin: 0, color: '#ff4d4f' }}>Витрина</Title>
 
-          <div style={{ display: 'flex', gap: 10 }}> {/* Обертка для кнопок */}
-              {/* Кнопка Профиля */}
-              <Button
-                icon={<UserOutlined />}
-                onClick={() => navigate('/profile')}
-              >
-                Профиль
-              </Button>
-
-              {/* Переключатель Вида */}
-              <Segmented
-                options={[
-                  { value: 'grid', icon: <AppstoreOutlined /> },
-                  { value: 'list', icon: <BarsOutlined /> },
-                ]}
-                value={viewMode}
-                onChange={setViewMode}
-              />
-          </div>
+          <Segmented
+            options={[
+              { value: 'grid', icon: <AppstoreOutlined /> },
+              { value: 'list', icon: <BarsOutlined /> },
+            ]}
+            value={viewMode}
+            onChange={setViewMode}
+          />
         </div>
 
         {/* Сетка товаров теперь изолирована и не будет перерисовываться при открытии корзины */}

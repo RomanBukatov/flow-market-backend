@@ -7,6 +7,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   bonusBalance: number;
+  role: string;
 }
 
 export interface OrderHistoryItem {

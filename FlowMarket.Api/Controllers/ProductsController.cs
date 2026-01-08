@@ -59,10 +59,26 @@ namespace FlowMarket.Api.Controllers
             return Ok(result);
         }
 
+        // GET: api/products/{id}
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProductById(Guid id)
+        {
+            var product = await _context.Products
+                                        .Include(p => p.Shop) // Грузим магазин
+                                        .FirstOrDefaultAsync(p => p.Id == id);
+        
+            if (product == null || product.IsDeleted)
+                return NotFound(new { message = "Товар не найден" });
+        
+            var dto = _mapper.Map<ProductDto>(product);
+            return Ok(dto);
+        }
+        
         // POST: api/products
         // Только для Селлеров (создание)
         [HttpPost]
-        [Authorize] 
+        [Authorize]
         public async Task<IActionResult> CreateProduct(CreateProductDto dto)
         {
             try
