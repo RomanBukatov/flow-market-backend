@@ -5,15 +5,23 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({ 
+    VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+
+ 
+      devOptions: {
+        enabled: true // Включаем PWA на локалхосте
+      },
+
+
       manifest: {
         name: 'Mario Flowers',
         short_name: 'MarioFlowers',
         description: 'Магазин цветов и подарков',
         theme_color: '#ffffff',
         background_color: '#ffffff',
-        display: 'standalone', // <--- Убирает адресную строку браузера
+        display: 'standalone',
         icons: [
           {
             src: 'pwa-192x192.png',

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { userApi } from '../../api/user';
 import { OrdersTab } from './tabs/OrdersTab';
 import { SettingsTab } from './tabs/SettingsTab';
+import { SellerDashboard } from './tabs/SellerDashboard';
 import { ShoppingOutlined, UserOutlined, ShopOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -42,9 +43,9 @@ export const ProfilePage = () => {
   if (profile?.role === 'Seller' || profile?.role === '1') {
       items.push({
           key: 'shop', // <--- key='shop'
-          label: 'Магазин',
+          label: 'Кабинет Продавца',
           icon: <ShopOutlined />,
-          children: <div>Тут будет Кабинет Продавца</div>
+          children: <SellerDashboard />
       });
   }
 

@@ -13,38 +13,58 @@ const { Header, Content, Footer } = Layout;
 export const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Читаем роль из памяти
+  const userRole = localStorage.getItem('userRole');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('mario-cart-storage');
+    localStorage.removeItem('userRole'); // Не забываем чистить роль
     navigate('/login');
   };
 
-  // Элементы меню (определяем внутри компонента, чтобы работал navigate)
-  const menuItems = [
+  // Базовые пункты
+  const menuItems: any[] = [
     {
-      key: 'settings', // Важно: ключи не так важны, важен onClick
+      key: 'settings',
       icon: <UserOutlined />,
       label: 'Профиль',
-      onClick: () => navigate('/profile?tab=settings'), // <--- ЯВНО УКАЗЫВАЕМ ВКЛАДКУ
+      onClick: () => navigate('/profile?tab=settings'),
     },
     {
       key: 'orders',
       icon: <ShoppingOutlined />,
-      label: 'Мои заказы',
-      onClick: () => navigate('/profile?tab=orders'), // <--- ЯВНО УКАЗЫВАЕМ ВКЛАДКУ
+      label: 'Мои покупки',
+      onClick: () => navigate('/profile?tab=orders'),
     },
-    {
+  ];
+
+  // ЛОГИКА ДЛЯ СЕЛЛЕРА
+  if (userRole === '1' || userRole === 'Seller') {
+    menuItems.splice(2, 0, {
       type: 'divider' as const,
-    },
+    });
+    
+    menuItems.splice(3, 0, {
+      key: 'seller-dashboard',
+      icon: <ShopOutlined style={{ color: '#ff4d4f' }} />,
+      label: <span style={{ fontWeight: 500 }}>Кабинет Продавца</span>,
+      onClick: () => navigate('/profile?tab=shop'),
+    });
+  }
+
+  // Добавляем Выход в конец
+  menuItems.push(
+    { type: 'divider' as const },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: 'Выйти',
       danger: true,
       onClick: handleLogout,
-    },
-  ];
+    }
+  );
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

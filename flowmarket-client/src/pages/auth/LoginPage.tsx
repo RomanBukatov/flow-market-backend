@@ -17,6 +17,8 @@ export const LoginPage = () => {
       message.success(`Привет, ${data.fullName}!`);
       // Сохраняем токен
       localStorage.setItem('token', data.token);
+      // Сохраняем роль
+      localStorage.setItem('userRole', data.role);
       window.location.href = '/catalog'; // Простой редирект
     },
     onError: (error: any) => {

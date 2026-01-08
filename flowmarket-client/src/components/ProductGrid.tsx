@@ -42,7 +42,8 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                   </Col>
                   <Col>
                      <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{product.price} ₽</div>
-                     <Button type="primary" onClick={() => {
+                     <Button type="primary" onClick={(e) => {
+                       e.stopPropagation();
                        addToCart(product);
                        message.success('Добавлено');
                      }}>В корзину</Button>
@@ -115,11 +116,12 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                 </div>
 
                 {/* КНОПКА */}
-                <Button 
-                  type="primary" 
-                  block 
+                <Button
+                  type="primary"
+                  block
                   className={styles.cartBtn}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     addToCart(product);
                     message.success('Добавлено');
                   }}

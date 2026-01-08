@@ -1,0 +1,174 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, Button, Form, Input, Spin, Typography, message, Result, Modal, Row, Col, InputNumber } from 'antd';
+import { ShopOutlined, PlusOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { shopApi } from '../../../../api/shop';
+import type { CreateShopDto, UpdateShopDto } from '../../../../types/seller';
+
+const { Title, Paragraph, Text } = Typography;
+
+export const ShopTab = () => {
+  const queryClient = useQueryClient();
+  const [createForm] = Form.useForm();
+  const [editForm] = Form.useForm();
+  
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // 1. Получаем магазин
+  const { data: shop, isLoading } = useQuery({
+    queryKey: ['my-shop'],
+    queryFn: shopApi.getMyShop,
+  });
+
+  // 2. Создание
+  const createMutation = useMutation({
+    mutationFn: (data: CreateShopDto) => shopApi.createShop(data),
+    onSuccess: () => {
+      message.success('Магазин успешно создан!');
+      queryClient.invalidateQueries({ queryKey: ['my-shop'] });
+    },
+    onError: () => message.error('Ошибка при создании'),
+  });
+
+  // 3. Обновление (Редактирование)
+  const updateMutation = useMutation({
+    mutationFn: (data: UpdateShopDto) => shopApi.updateShop(data),
+    onSuccess: () => {
+      message.success('Настройки обновлены');
+      setIsEditModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['my-shop'] });
+    },
+    onError: () => message.error('Не удалось обновить магазин'),
+  });
+
+  const handleEditClick = () => {
+    // Заполняем форму текущими данными перед открытием
+    editForm.setFieldsValue({
+      description: shop?.description,
+      city: shop?.city,
+      logoUrl: shop?.logoUrl,
+      // Если координат нет, ставим дефолт (Екб)
+      latitude: shop?.latitude || 56.8389,
+      longitude: shop?.longitude || 60.5974,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  if (isLoading) return <Spin size="large" style={{ display: 'block', margin: '50px auto' }} />;
+
+  // --- ВАРИАНТ 1: НЕТ МАГАЗИНА (ФОРМА СОЗДАНИЯ) ---
+  if (!shop) {
+    return (
+      <Card title="Создание магазина" style={{ maxWidth: 600, margin: '0 auto' }}>
+        <Result
+          icon={<ShopOutlined style={{ color: '#ff6b6b' }} />}
+          title="Добро пожаловать в MarioFlowers!"
+          subTitle="Создайте свой магазин, чтобы начать принимать заказы."
+        />
+        <Form layout="vertical" form={createForm} onFinish={(vals) => createMutation.mutate(vals)}>
+          <Row gutter={16}>
+            <Col span={12}>
+                <Form.Item name="name" label="Название" rules={[{ required: true }]}>
+                    <Input placeholder="Например: Ромашка" />
+                </Form.Item>
+            </Col>
+            <Col span={12}>
+                <Form.Item name="city" label="Город" rules={[{ required: true }]}>
+                    <Input placeholder="Екатеринбург" />
+                </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item name="description" label="Описание">
+            <Input.TextArea rows={3} placeholder="Расскажите о себе..." />
+          </Form.Item>
+          <Button type="primary" htmlType="submit" block size="large" icon={<PlusOutlined />} loading={createMutation.isPending}>
+            Открыть Магазин
+          </Button>
+        </Form>
+      </Card>
+    );
+  }
+
+  // --- ВАРИАНТ 2: ЕСТЬ МАГАЗИН (ИНФО + РЕДАКТИРОВАНИЕ) ---
+  return (
+    <>
+      <Card>
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+           {/* Логотип или Заглушка */}
+           <div style={{ 
+               width: 100, height: 100, borderRadius: '50%', background: '#eee', 
+               margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+               overflow: 'hidden', border: '4px solid white', boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
+           }}>
+              {shop.logoUrl && shop.logoUrl.startsWith('http') 
+                ? <img src={shop.logoUrl} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                : <ShopOutlined style={{ fontSize: 40, color: '#999' }} />
+              }
+           </div>
+
+           <Title level={2} style={{ margin: 0 }}>{shop.name}</Title>
+           <Text type="secondary"><EnvironmentOutlined /> {shop.city}</Text>
+           
+           <div style={{ marginTop: 20, maxWidth: 600, margin: '20px auto', color: '#555' }}>
+             {shop.description || "Описание отсутствует"}
+           </div>
+
+           <Button 
+             type="primary" 
+             icon={<EditOutlined />} 
+             size="large" 
+             style={{ minWidth: 200 }}
+             onClick={handleEditClick}
+           >
+             Редактировать
+           </Button>
+        </div>
+      </Card>
+
+      {/* МОДАЛКА РЕДАКТИРОВАНИЯ */}
+      <Modal
+        title="Настройки магазина"
+        open={isEditModalOpen}
+        onCancel={() => setIsEditModalOpen(false)}
+        footer={null} // Скрываем стандартные кнопки, используем свои в форме
+      >
+        <Form layout="vertical" form={editForm} onFinish={(vals) => updateMutation.mutate(vals)}>
+          <Form.Item name="city" label="Город">
+            <Input />
+          </Form.Item>
+          
+          <Form.Item name="description" label="Описание">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          
+          <Form.Item name="logoUrl" label="Ссылка на Логотип (URL)">
+            <Input placeholder="https://..." />
+          </Form.Item>
+
+          <div style={{ background: '#f9f9f9', padding: 15, borderRadius: 12, marginBottom: 20 }}>
+            <Text strong>📍 Геолокация (для расчета доставки)</Text>
+            <div style={{ marginTop: 10, fontSize: 12, color: '#888', marginBottom: 10 }}>
+              Возьмите координаты из Яндекс.Карт, чтобы калькулятор доставки работал точно.
+            </div>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="latitude" label="Широта (Lat)" rules={[{ required: true }]}>
+                  <InputNumber style={{ width: '100%' }} precision={6} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="longitude" label="Долгота (Lon)" rules={[{ required: true }]}>
+                  <InputNumber style={{ width: '100%' }} precision={6} />
+                </Form.Item>
+              </Col>
+            </Row>
+          </div>
+
+          <Button type="primary" htmlType="submit" block size="large" loading={updateMutation.isPending}>
+            Сохранить изменения
+          </Button>
+        </Form>
+      </Modal>
+    </>
+  );
+};
