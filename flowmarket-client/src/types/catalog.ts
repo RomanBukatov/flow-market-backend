@@ -18,3 +18,11 @@ export interface PagedResponse<T> {
   pageSize: number;
   totalPages: number;
 }
+
+export interface ProductFilter {
+  minPrice?: number;
+  maxPrice?: number;
+  color?: string;
+  maxAssemblyTime?: number;
+  search?: string;
+}

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, Button, Form, Input, Spin, Typography, message, Result, Modal, Row, Col, InputNumber } from 'antd';
+import { ImageUpload } from '../../../../components/ImageUpload';
 import { ShopOutlined, PlusOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import type { CreateShopDto, UpdateShopDto } from '../../../../types/seller';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
 export const ShopTab = () => {
   const queryClient = useQueryClient();
@@ -141,9 +142,9 @@ export const ShopTab = () => {
             <Input.TextArea rows={3} />
           </Form.Item>
           
-          <Form.Item name="logoUrl" label="Ссылка на Логотип (URL)">
-            <Input placeholder="https://..." />
-          </Form.Item>
+          <Form.Item name="logoUrl" label="Логотип">
+           <ImageUpload />
+         </Form.Item>
 
           <div style={{ background: '#f9f9f9', padding: 15, borderRadius: 12, marginBottom: 20 }}>
             <Text strong>📍 Геолокация (для расчета доставки)</Text>

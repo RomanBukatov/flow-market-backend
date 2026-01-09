@@ -29,33 +29,54 @@ namespace FlowMarket.Api.Controllers
             _productService = productService;
         }
 
-        // GET: api/products?page=1&pageSize=12
+        // GET: api/products
         [HttpGet]
-        [AllowAnonymous] 
-        public async Task<IActionResult> GetProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 12)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProducts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 48,
+            [FromQuery] ProductFilterDto filter = null) // <--- Добавили фильтр
         {
-            // 1. Создаем запрос (еще не выполняем)
             var query = _context.Products
                                 .Include(p => p.Shop)
                                 .Where(p => !p.IsDeleted)
-                                .OrderByDescending(p => p.CreatedAt)
                                 .AsQueryable();
 
-            // 2. Считаем общее количество (быстрый запрос COUNT)
+            // === ЛОГИКА ФИЛЬТРАЦИИ ===
+            if (filter != null)
+            {
+                // Цена
+                if (filter.MinPrice.HasValue)
+                    query = query.Where(p => p.BasePrice >= filter.MinPrice.Value);
+
+                if (filter.MaxPrice.HasValue)
+                    query = query.Where(p => p.BasePrice <= filter.MaxPrice.Value);
+
+                // Цвет (точное совпадение или частичное)
+                if (!string.IsNullOrEmpty(filter.Color) && filter.Color != "Все")
+                    query = query.Where(p => p.Color == filter.Color);
+
+                // Время сборки (все, что быстрее или равно)
+                if (filter.MaxAssemblyTime.HasValue)
+                    query = query.Where(p => p.AssemblyTimeMinutes <= filter.MaxAssemblyTime.Value);
+
+                // Поиск по имени
+                if (!string.IsNullOrEmpty(filter.Search))
+                    query = query.Where(p => p.Name.ToLower().Contains(filter.Search.ToLower()));
+            }
+
+            // Сортировка и пагинация
             var totalCount = await query.CountAsync();
 
-            // 3. Берем нужную страницу (LIMIT/OFFSET)
             var products = await query
+                                .OrderByDescending(p => p.CreatedAt)
                                 .Skip((page - 1) * pageSize)
                                 .Take(pageSize)
                                 .ToListAsync();
 
-            // 4. Маппим
             var productsDto = _mapper.Map<List<ProductDto>>(products);
-
-            // 5. Возвращаем обертку
             var result = new PagedResult<ProductDto>(productsDto, totalCount, page, pageSize);
-            
+
             return Ok(result);
         }
 

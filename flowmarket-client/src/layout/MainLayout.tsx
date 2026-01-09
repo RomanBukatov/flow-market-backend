@@ -1,5 +1,5 @@
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Dropdown, Button, Space, Avatar } from 'antd';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { Layout, Dropdown, Button, Space, Avatar } from 'antd';
 import { 
   UserOutlined, 
   LogoutOutlined, 
@@ -12,8 +12,7 @@ const { Header, Content, Footer } = Layout;
 
 export const MainLayout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  
+
   // Читаем роль из памяти
   const userRole = localStorage.getItem('userRole');
 
@@ -68,10 +67,19 @@ export const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ 
-        position: 'sticky', top: 0, zIndex: 100, width: '100%', 
-        display: 'flex', alignItems: 'center', padding: '0 20px',
-        background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+      <Header style={{
+        position: 'fixed', // <--- FIXED вместо sticky
+        top: 0,
+        left: 0, // <--- Гарантируем привязку к левому краю
+        width: '100%',
+        zIndex: 1000, // <--- Чтобы была поверх всего
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 16px', // Чуть меньше отступы по бокам для мобилок
+        background: 'rgba(255, 255, 255, 0.95)', // Чуть прозрачности (эффект стекла)
+        backdropFilter: 'blur(10px)', // Размытие фона (как в iOS)
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        height: 64 // Явно задаем высоту
       }}>
         <div 
             style={{ fontSize: 20, fontWeight: 800, color: '#ff6b6b', marginRight: 'auto', cursor: 'pointer' }}
@@ -92,11 +100,14 @@ export const MainLayout = () => {
         </Dropdown>
       </Header>
 
-      <Content style={{ marginTop: 0 }}>
+      <Content style={{
+        marginTop: 64, // <--- Отступ равен высоте шапки, чтобы не перекрывало
+        minHeight: 'calc(100vh - 64px - 70px)' // Вычет шапки и футера
+      }}>
         <Outlet />
       </Content>
 
-      <Footer style={{ textAlign: 'center', color: '#999' }}>
+      <Footer style={{ textAlign: 'center', color: '#999', background: '#f1f3f5' }}>
         Mario Flowers ©2026
       </Footer>
     </Layout>

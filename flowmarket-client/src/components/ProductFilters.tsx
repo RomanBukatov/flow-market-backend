@@ -1,0 +1,92 @@
+import { useState, useEffect } from 'react';
+import { Card, Slider, InputNumber, Select, Button, Typography} from 'antd';
+import { FilterOutlined } from '@ant-design/icons';
+import type { ProductFilter } from '../types/catalog';
+
+const { Title } = Typography;
+
+interface ProductFiltersProps {
+  filters: ProductFilter;
+  onChange: (newFilters: ProductFilter) => void;
+}
+
+export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
+  // Локальный стейт, чтобы ползунок бегал плавно, не дёргая API
+  const [localPrice, setLocalPrice] = useState<[number, number]>([
+    filters.minPrice || 0,
+    filters.maxPrice || 50000
+  ]);
+
+  // Синхронизация, если фильтры сбросили снаружи
+  useEffect(() => {
+    setLocalPrice([filters.minPrice || 0, filters.maxPrice || 50000]);
+  }, [filters]);
+
+  // Срабатывает только когда ОТПУСТИЛИ ползунок
+  const onAfterChange = (value: number[]) => {
+    onChange({ ...filters, minPrice: value[0], maxPrice: value[1] });
+  };
+
+  return (
+    <Card className="static-card" style={{ height: 'fit-content' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+        <FilterOutlined style={{ marginRight: 8, fontSize: 18, color: '#ff6b6b' }} />
+        <Title level={4} style={{ margin: 0 }}>Фильтры</Title>
+      </div>
+
+      {/* ЦЕНА */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Цена (₽)</div>
+        <Slider
+          range
+          min={0}
+          max={50000}
+          value={localPrice} // Привязываем к локальному
+          onChange={(value) => setLocalPrice(value as [number, number])} // Меняем только локально (визуал)
+          onAfterChange={onAfterChange} // <--- ОТПРАВЛЯЕМ ЗАПРОС ТОЛЬКО ТУТ
+          trackStyle={[{ backgroundColor: '#ff6b6b' }]}
+          handleStyle={[{ borderColor: '#ff6b6b' }, { borderColor: '#ff6b6b' }]}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+          <InputNumber
+            min={0}
+            controls={false}
+            value={filters.minPrice}
+            onChange={(v) => onChange({ ...filters, minPrice: v || 0 })}
+            placeholder="От"
+          />
+          <InputNumber
+            min={0}
+            controls={false}
+            value={filters.maxPrice}
+            onChange={(v) => onChange({ ...filters, maxPrice: v || 50000 })}
+            placeholder="До"
+          />
+        </div>
+      </div>
+
+      {/* ЦВЕТ */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Цвет</div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Выберите цвет"
+          allowClear
+          value={filters.color}
+          onChange={(v) => onChange({ ...filters, color: v })}
+          options={[
+            { value: 'Красный', label: '🔴 Красный' },
+            { value: 'Белый', label: '⚪ Белый' },
+            { value: 'Розовый', label: '🌸 Розовый' },
+            { value: 'Микс', label: '🎨 Микс' },
+          ]}
+        />
+      </div>
+
+      {/* СБРОСИТЬ */}
+      <Button block onClick={() => onChange({})}>
+        Сбросить все
+      </Button>
+    </Card>
+  );
+};

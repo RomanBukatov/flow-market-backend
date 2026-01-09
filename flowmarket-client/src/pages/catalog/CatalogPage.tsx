@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Typography, Spin, FloatButton, Pagination, Segmented } from 'antd';
-import { ShoppingCartOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
+import { Typography, FloatButton, Pagination, Segmented, Row, Col, Drawer, Button } from 'antd';
+import { ShoppingCartOutlined, AppstoreOutlined, BarsOutlined, FilterOutlined } from '@ant-design/icons';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
 import { CartDrawer } from '../../components/CartDrawer';
 import { ProductGrid } from '../../components/ProductGrid';
+import { ProductFilters } from '../../components/ProductFilters';
+import type { ProductFilter } from '../../types/catalog';
 
 const { Title } = Typography;
 const PAGE_SIZE = 48;
@@ -14,18 +16,19 @@ export const CatalogPage = () => {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const { data: pagedResponse, isLoading } = useQuery({
-    queryKey: ['products', page],
-    queryFn: () => catalogApi.getProducts(page, PAGE_SIZE),
+  // Стейт фильтров
+  const [filters, setFilters] = useState<ProductFilter>({});
+
+  const { data: pagedResponse, isFetching } = useQuery({
+    queryKey: ['products', page, filters], // <--- Добавили filters в ключ! При изменении - авто-рефетч
+    queryFn: () => catalogApi.getProducts(page, PAGE_SIZE, filters),
+    placeholderData: keepPreviousData, // <--- МАГИЯ: Оставляет старые данные, пока грузятся новые
   });
 
   // Достаем количество товаров для бейджика на кнопке
   const cartItemsCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
   const [cartOpen, setCartOpen] = useState(false);
-
-  if (isLoading) {
-    return <div style={{ textAlign: 'center', marginTop: 50 }}><Spin size="large" /></div>;
-  }
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   return (
     <>
@@ -43,19 +46,52 @@ export const CatalogPage = () => {
           />
         </div>
 
-        {/* Сетка товаров теперь изолирована и не будет перерисовываться при открытии корзины */}
-        <ProductGrid products={pagedResponse?.items} viewMode={viewMode} />
+        {/* КНОПКА ФИЛЬТРОВ (Только мобилка) */}
+        <Button
+          className="mobile-filters-btn"
+          icon={<FilterOutlined />}
+          block
+          size="large"
+          onClick={() => setMobileFiltersOpen(true)}
+        >
+          Фильтры и сортировка
+        </Button>
 
-        {/* Пагинация */}
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <Pagination
-            current={page}
-            total={pagedResponse?.totalCount || 0}
-            pageSize={PAGE_SIZE}
-            onChange={setPage}
-            showSizeChanger={false}
-          />
-        </div>
+        {/* ШТОРКА ФИЛЬТРОВ (Только мобилка) */}
+        <Drawer
+          title="Фильтры"
+          placement="left"
+          onClose={() => setMobileFiltersOpen(false)}
+          open={mobileFiltersOpen}
+          width="85%" // Почти на весь экран
+        >
+          <ProductFilters filters={filters} onChange={setFilters} />
+        </Drawer>
+
+        <Row gutter={24}>
+            {/* ЛЕВАЯ КОЛОНКА (ФИЛЬТРЫ) - Скрываем на мобилках (xs=0) */}
+            <Col xs={0} lg={6} xl={5}>
+               <ProductFilters filters={filters} onChange={setFilters} />
+            </Col>
+
+            {/* ПРАВАЯ КОЛОНКА (ТОВАРЫ) */}
+            <Col xs={24} lg={18} xl={19}>
+               <div style={{ opacity: isFetching ? 0.5 : 1, transition: '0.2s' }}>
+                  {/* Пробрасываем товары */}
+                   <ProductGrid products={pagedResponse?.items} viewMode={viewMode} />
+               </div>
+               {/* Пагинация */}
+               <div style={{ textAlign: 'center', marginTop: 24 }}>
+                 <Pagination
+                   current={page}
+                   total={pagedResponse?.totalCount || 0}
+                   pageSize={PAGE_SIZE}
+                   onChange={setPage}
+                   showSizeChanger={false}
+                 />
+               </div>
+            </Col>
+         </Row>
       </div>
 
       {/* ПЛАВАЮЩАЯ КНОПКА КОРЗИНЫ (Всегда видна) */}

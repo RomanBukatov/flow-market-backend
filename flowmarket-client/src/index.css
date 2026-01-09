@@ -2,6 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 
 body {
+  margin: 0;
+  padding: 0;
   /* Теплый светло-серый фон (не больнично-белый) */
   background-color: #f1f3f5;
   font-family: 'Varela Round', sans-serif;
@@ -82,4 +84,36 @@ h1, h2, h3 {
   transform: none !important;
   /* Тень можно оставить или убрать, по вкусу */
   box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+
+/* Убираем стрелки у InputNumber */
+.ant-input-number-handler-wrap {
+  display: none !important;
+}
+
+/* 2. Убираем нативные стрелки браузера (Chrome, Safari, Edge) */
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 3. Убираем нативные стрелки браузера (Firefox) */
+.ant-input-number-input {
+  -moz-appearance: textfield !important;
+}
+
+/* Фикс для мобильного вида */
+@media (max-width: 768px) {
+  .mobile-filters-btn {
+    display: block !important;
+    margin-bottom: 16px;
+  }
+}
+
+/* Скрываем кнопку фильтров на ПК */
+@media (min-width: 992px) {
+  .mobile-filters-btn {
+    display: none !important;
+  }
 }

@@ -7,12 +7,14 @@ import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { RequireAuth } from './components/RequireAuth';
 import { MainLayout } from './layout/MainLayout';
+import { ScrollToTop } from './components/ScrollToTop';
 
 function App() {
   const token = localStorage.getItem('token');
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
