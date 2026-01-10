@@ -25,6 +25,11 @@ export const shopApi = {
     return response.data;
   },
 
+  updateProduct: async (id: string, data: CreateProductDto): Promise<any> => {
+    const response = await api.put(`/Products/${id}`, data);
+    return response.data;
+  },
+
   deleteProduct: async (id: string): Promise<void> => {
     await api.delete(`/Products/${id}`);
   },

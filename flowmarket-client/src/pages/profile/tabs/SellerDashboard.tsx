@@ -1,6 +1,8 @@
 import { Tabs } from 'antd';
 import { ShopOutlined, AppstoreAddOutlined, OrderedListOutlined } from '@ant-design/icons';
 import { ShopTab } from './seller/ShopTab';
+import { SellerProductsTab } from './seller/SellerProductsTab'; // <--- ИМПОРТ
+import { SellerOrdersTab } from './seller/SellerOrdersTab';     // <--- ИМПОРТ
 
 export const SellerDashboard = () => {
   const items = [
@@ -14,13 +16,13 @@ export const SellerDashboard = () => {
       key: 'products',
       label: 'Товары',
       icon: <AppstoreAddOutlined />,
-      children: <div>Тут будет управление товарами</div>,
+      children: <SellerProductsTab />, // <--- ВСТАВЬ КОМПОНЕНТ
     },
     {
       key: 'orders',
       label: 'Входящие заказы',
       icon: <OrderedListOutlined />,
-      children: <div>Тут будут заказы</div>,
+      children: <SellerOrdersTab />,   // <--- ВСТАВЬ КОМПОНЕНТ
     },
   ];
 

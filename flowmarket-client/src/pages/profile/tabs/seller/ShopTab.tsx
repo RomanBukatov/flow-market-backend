@@ -60,7 +60,7 @@ export const ShopTab = () => {
   // --- ВАРИАНТ 1: НЕТ МАГАЗИНА (ФОРМА СОЗДАНИЯ) ---
   if (!shop) {
     return (
-      <Card title="Создание магазина" style={{ maxWidth: 600, margin: '0 auto' }}>
+      <Card className="static-card" title="Создание магазина" style={{ maxWidth: 600, margin: '0 auto' }}>
         <Result
           icon={<ShopOutlined style={{ color: '#ff6b6b' }} />}
           title="Добро пожаловать в MarioFlowers!"
@@ -93,7 +93,7 @@ export const ShopTab = () => {
   // --- ВАРИАНТ 2: ЕСТЬ МАГАЗИН (ИНФО + РЕДАКТИРОВАНИЕ) ---
   return (
     <>
-      <Card>
+      <Card className="static-card">
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
            {/* Логотип или Заглушка */}
            <div style={{ 

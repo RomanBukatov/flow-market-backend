@@ -7,6 +7,7 @@ namespace FlowMarket.Application.Products.Interfaces
     public interface IProductManagementService
     {
         Task<ProductDto> CreateProductAsync(CreateProductDto dto, Guid userId);
+        Task<ProductDto> UpdateProductAsync(Guid productId, UpdateProductDto dto, Guid userId);
         Task DeleteProductAsync(Guid productId, Guid userId);
     }
 }

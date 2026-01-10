@@ -13,7 +13,7 @@ export const SettingsTab = ({ profile }: { profile: UserProfile | undefined }) =
 
   return (
     <div>
-      <Card title="Мои данные" style={{ marginBottom: 20 }}>
+      <Card className="static-card" title="Мои данные" style={{ marginBottom: 20 }}>
         <Descriptions column={1} size="small">
           <Descriptions.Item label="Имя">{profile?.fullName}</Descriptions.Item>
           <Descriptions.Item label="Email">{profile?.email}</Descriptions.Item>

@@ -54,7 +54,7 @@ export const ProfilePage = () => {
       <Title level={3}>Личный кабинет</Title>
 
       {/* Карточка бонусов всегда сверху - это важно для лояльности */}
-      <Card style={{ marginBottom: 20, background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)', border: 'none' }}>
+      <Card className="static-card" style={{ marginBottom: 20, background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)', border: 'none' }}>
          <Statistic
            title={<span style={{ color: 'rgba(255,255,255,0.8)' }}>Ваши бонусы</span>}
            value={profile?.bonusBalance}

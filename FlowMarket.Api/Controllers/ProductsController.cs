@@ -132,6 +132,24 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
+        // PUT: api/products/{id}
+        // Только для Владельца (обновление)
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProduct(Guid id, UpdateProductDto dto)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var result = await _productService.UpdateProductAsync(id, dto, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Вспомогательный метод для получения ID из токена
         private Guid GetCurrentUserId()
         {

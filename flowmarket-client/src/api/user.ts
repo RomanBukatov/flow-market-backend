@@ -17,6 +17,22 @@ export interface OrderHistoryItem {
   statusSummary: string;
 }
 
+export interface OrderDetails {
+  subOrderId: string;
+  orderId: string;
+  createdAt: string;
+  status: string;
+  userPhone: string;
+  userAddress: string;
+  totalPrice: number;
+  items: {
+    productName: string;
+    quantity: number;
+    price: number;
+    imageUrl: string;
+  }[];
+}
+
 export const userApi = {
   getProfile: async (): Promise<UserProfile> => {
     const response = await api.get<UserProfile>('/Users/me');
@@ -24,6 +40,10 @@ export const userApi = {
   },
   getHistory: async (): Promise<OrderHistoryItem[]> => {
     const response = await api.get<OrderHistoryItem[]>('/Orders/my-history');
+    return response.data;
+  },
+  getOrderDetails: async (id: string): Promise<OrderDetails> => {
+    const response = await api.get<OrderDetails>(`/Orders/${id}`);
     return response.data;
   }
 };

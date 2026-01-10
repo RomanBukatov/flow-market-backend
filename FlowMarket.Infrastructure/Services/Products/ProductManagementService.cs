@@ -58,5 +58,63 @@ namespace FlowMarket.Infrastructure.Services.Products
             product.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ProductDto> UpdateProductAsync(Guid productId, UpdateProductDto dto, Guid userId)
+        {
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
+
+            if (product == null)
+            {
+                throw new Exception("Товар не найден");
+            }
+
+            if (product.Shop.OwnerId != userId)
+            {
+                throw new Exception("У вас нет прав на редактирование этого товара");
+            }
+
+            if (dto.Name != null)
+            {
+                product.Name = dto.Name;
+            }
+            if (dto.Description != null)
+            {
+                product.Description = dto.Description;
+            }
+            if (dto.BasePrice != null)
+            {
+                product.BasePrice = dto.BasePrice.Value;
+            }
+            if (dto.HeightCm != null)
+            {
+                product.HeightCm = dto.HeightCm.Value;
+            }
+            if (dto.WidthCm != null)
+            {
+                product.WidthCm = dto.WidthCm.Value;
+            }
+            if (dto.AssemblyTimeMinutes != null)
+            {
+                product.AssemblyTimeMinutes = dto.AssemblyTimeMinutes.Value;
+            }
+            if (dto.ImageUrl != null)
+            {
+                product.ImageUrl = dto.ImageUrl;
+            }
+            if (dto.Color != null)
+            {
+                product.Color = dto.Color;
+            }
+            if (dto.Occasion != null)
+            {
+                product.Occasion = dto.Occasion;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ProductDto>(product);
+        }
     }
 }

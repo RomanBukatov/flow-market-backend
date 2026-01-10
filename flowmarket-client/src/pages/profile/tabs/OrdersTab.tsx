@@ -2,9 +2,14 @@ import { List, Card, Row, Col, Tag, Spin, Empty, Button } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { userApi } from '../../../api/user';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { OrderDetailsModal } from '../../../components/OrderDetailsModal';
 
 export const OrdersTab = () => {
   const navigate = useNavigate();
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { data: orders, isLoading } = useQuery({
     queryKey: ['my-orders'],
     queryFn: userApi.getHistory,
@@ -18,10 +23,19 @@ export const OrdersTab = () => {
   );
 
   return (
-    <List
+    <>
+      <List
       dataSource={orders}
       renderItem={item => (
-        <Card style={{ marginBottom: 10 }} size="small">
+        <Card
+          className="static-card"
+          style={{ marginBottom: 10, cursor: 'pointer' }}
+          size="small"
+          onClick={() => {
+            setSelectedOrderId(item.orderId);
+            setIsModalOpen(true);
+          }}
+        >
           <Row justify="space-between" align="middle">
             <Col>
               <div style={{fontWeight: 600}}>Заказ от {new Date(item.createdAt).toLocaleDateString()}</div>
@@ -37,5 +51,11 @@ export const OrdersTab = () => {
         </Card>
       )}
     />
+    <OrderDetailsModal
+      open={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      orderId={selectedOrderId}
+    />
+    </>
   );
 };
