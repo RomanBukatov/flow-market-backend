@@ -66,5 +66,16 @@ namespace FlowMarket.Infrastructure.Services.Shops
 
             return _mapper.Map<ShopDto>(shop);
         }
+
+        public async Task<ShopDto> GetShopByIdAsync(Guid id)
+        {
+            var shop = await _context.Shops
+                .Include(s => s.DeliveryZones) // Можно показать зоны доставки
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shop == null) return null;
+
+            return _mapper.Map<ShopDto>(shop);
+        }
     }
 }

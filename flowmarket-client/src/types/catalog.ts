@@ -25,4 +25,6 @@ export interface ProductFilter {
   color?: string;
   maxAssemblyTime?: number;
   search?: string;
+  occasion?: string;
+  shopId?: string;
 }

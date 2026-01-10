@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space } from 'antd';
+import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import { catalogApi } from '../../../../api/catalog';
@@ -66,6 +66,8 @@ export const SellerProductsTab = () => {
       description: record.description,
       assemblyTimeMinutes: record.assemblyTimeMinutes,
       imageUrl: record.imageUrl,
+      color: record.color,
+      occasion: record.occasion,
     });
     setIsModalOpen(true);
   };
@@ -119,6 +121,36 @@ export const SellerProductsTab = () => {
           <Form.Item name="assemblyTimeMinutes" label="Время сборки (мин)">
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="color"
+                label="Цвет"
+                rules={[{ required: true, message: 'Выберите цвет' }]}
+              >
+                <Select placeholder="Выберите...">
+                  <Select.Option value="Красный">🔴 Красный</Select.Option>
+                  <Select.Option value="Белый">⚪ Белый</Select.Option>
+                  <Select.Option value="Розовый">🌸 Розовый</Select.Option>
+                  <Select.Option value="Микс">🎨 Микс</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="occasion"
+                label="Повод"
+                rules={[{ required: true, message: 'Выберите повод' }]}
+              >
+                <Select placeholder="Выберите...">
+                  <Select.Option value="Без повода">😐 Без повода</Select.Option>
+                  <Select.Option value="День рождения">🎂 ДР</Select.Option>
+                  <Select.Option value="Свидание">❤️ Свидание</Select.Option>
+                  <Select.Option value="Свадьба">💍 Свадьба</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item name="imageUrl" label="Фото">
             <ImageUpload />
           </Form.Item>

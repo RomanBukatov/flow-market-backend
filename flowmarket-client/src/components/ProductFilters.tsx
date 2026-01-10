@@ -83,6 +83,25 @@ export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
         />
       </div>
 
+      {/* ПОВОД */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Повод</div>
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Любой повод"
+          allowClear
+          value={filters.occasion}
+          onChange={(v) => onChange({ ...filters, occasion: v })}
+          options={[
+            { value: 'День рождения', label: '🎂 День рождения' },
+            { value: 'Свидание', label: '❤️ Свидание' },
+            { value: 'Свадьба', label: '💍 Свадьба' },
+            { value: 'Маме', label: '👩‍👧 Маме' },
+            { value: 'Без повода', label: '😐 Без повода' },
+          ]}
+        />
+      </div>
+
       {/* СБРОСИТЬ */}
       <Button block onClick={() => onChange({})}>
         Сбросить все

@@ -63,6 +63,14 @@ namespace FlowMarket.Api.Controllers
                 // Поиск по имени
                 if (!string.IsNullOrEmpty(filter.Search))
                     query = query.Where(p => p.Name.ToLower().Contains(filter.Search.ToLower()));
+    
+                // Фильтр по Магазину
+                if (filter.ShopId.HasValue)
+                    query = query.Where(p => p.ShopId == filter.ShopId.Value);
+    
+                // Фильтр по Поводу
+                if (!string.IsNullOrEmpty(filter.Occasion) && filter.Occasion != "Все")
+                    query = query.Where(p => p.Occasion == filter.Occasion);
             }
 
             // Сортировка и пагинация

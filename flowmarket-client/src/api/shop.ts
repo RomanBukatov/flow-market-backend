@@ -43,5 +43,11 @@ export const shopApi = {
   updateOrderStatus: async (subOrderId: string, status: number): Promise<void> => {
     // status: 6 = Completed
     await api.put(`/Orders/${subOrderId}/status`, { status });
+  },
+
+  // --- ПУБЛИЧНЫЙ МАГАЗИН ---
+  getPublicShop: async (id: string): Promise<Shop> => {
+    const response = await api.get<Shop>(`/Shops/${id}`);
+    return response.data;
   }
 };

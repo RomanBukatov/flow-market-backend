@@ -64,5 +64,17 @@ namespace FlowMarket.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // GET: api/shops/{id}
+        [HttpGet("{id}")]
+        [AllowAnonymous] // Публичный доступ
+        public async Task<IActionResult> GetShopById(Guid id)
+        {
+            var shop = await _shopService.GetShopByIdAsync(id);
+
+            if (shop == null) return NotFound("Магазин не найден");
+
+            return Ok(shop);
+        }
     }
 }

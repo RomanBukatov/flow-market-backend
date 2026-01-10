@@ -57,7 +57,13 @@ export const ProductPage = () => {
                     <div style={{ color: '#888', fontSize: 12 }}>Проверенный магазин</div>
                 </Col>
                 <Col>
-                    <Button type="default" size="small">Перейти</Button>
+                    <Button
+                        type="default"
+                        size="small"
+                        onClick={() => navigate(`/shop/${product.shopId}`)}
+                    >
+                        Перейти
+                    </Button>
                 </Col>
              </Row>
           </Card>

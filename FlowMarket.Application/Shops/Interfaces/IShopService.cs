@@ -7,8 +7,9 @@ namespace FlowMarket.Application.Shops.Interfaces
 {
     public interface IShopService
     {
-        Task<ShopDto> CreateShopAsync(CreateShopDto dto, Guid userId);
-        Task<List<ShopDto>> GetUserShopsAsync(Guid userId);
-        Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId);
+       Task<ShopDto> CreateShopAsync(CreateShopDto dto, Guid userId);
+       Task<List<ShopDto>> GetUserShopsAsync(Guid userId);
+       Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId);
+       Task<ShopDto> GetShopByIdAsync(Guid id);
     }
 }

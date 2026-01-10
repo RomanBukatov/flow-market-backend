@@ -22,6 +22,8 @@ export interface CreateProductDto {
   basePrice: number;
   imageUrl: string;
   assemblyTimeMinutes: number;
+  color: string;
+  occasion: string;
 }
 
 export interface SellerOrder {

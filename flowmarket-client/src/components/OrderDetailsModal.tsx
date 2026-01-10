@@ -1,4 +1,4 @@
-import { Modal, List, Typography, Image, Descriptions, Tag, Space, Spin, Alert } from 'antd';
+import { Modal, List, Typography, Image, Descriptions, Space, Spin, Alert } from 'antd';
 import type { SellerOrder } from '../types/seller';
 import { useQuery } from '@tanstack/react-query';
 import { userApi } from '../api/user';
