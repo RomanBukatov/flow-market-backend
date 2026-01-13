@@ -2,26 +2,24 @@ import { useState } from 'react';
 import { Upload, message } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import type { RcFile } from 'antd/es/upload/interface';
+import ImgCrop from 'antd-img-crop'; 
 import { filesApi } from '../api/files';
 
 interface ImageUploadProps {
-  value?: string;           // Текущая ссылка (приходит из Form)
-  onChange?: (url: string) => void; // Функция обновления (от Form)
+  value?: string;
+  onChange?: (url: string) => void;
 }
 
 export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   const [loading, setLoading] = useState(false);
 
-  // Кастомная функция загрузки (перехватываем стандартное поведение AntD)
   const customRequest = async (options: any) => {
     const { file, onSuccess, onError } = options;
     setLoading(true);
     
     try {
       const url = await filesApi.upload(file);
-      // Сообщаем Ant Design, что всё ок
       onSuccess(url);
-      // Сообщаем Форме, что ссылка изменилась
       onChange?.(url);
       message.success('Картинка загружена!');
     } catch (err) {
@@ -33,7 +31,6 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
     }
   };
 
-  // Валидация перед загрузкой (Размер < 2MB, Тип JPG/PNG)
   const beforeUpload = (file: RcFile) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
     if (!isJpgOrPng) {
@@ -54,19 +51,32 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   );
 
   return (
-    <Upload
-      name="file"
-      listType="picture-card"
-      className="avatar-uploader"
-      showUploadList={false}
-      customRequest={customRequest} // <--- Используем наш API
-      beforeUpload={beforeUpload}
+    <ImgCrop 
+      rotationSlider 
+      aspect={1 / 1}
+      quality={0.8}
+      modalTitle="Редактирование фото"
+      modalOk="Сохранить"
+      modalCancel="Отмена"
     >
-      {value ? (
-        <img src={value} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
-      ) : (
-        uploadButton
-      )}
-    </Upload>
+      <Upload
+        name="file"
+        listType="picture-card"
+        className="avatar-uploader"
+        showUploadList={false}
+        customRequest={customRequest}
+        beforeUpload={beforeUpload}
+      >
+        {value ? (
+          <img 
+             src={value} 
+             alt="uploaded" 
+             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} 
+          />
+        ) : (
+          uploadButton
+        )}
+      </Upload>
+    </ImgCrop>
   );
 };

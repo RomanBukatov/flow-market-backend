@@ -22,59 +22,80 @@ namespace FlowMarket.Infrastructure.Services
 
         public async Task<int> ImportFromExcelAsync(Stream fileStream, Guid shopId)
         {
-            // Регистрируем кодировку ТУТ тоже, на всякий случай, если контекст потерялся
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            
+
             using var reader = ExcelReaderFactory.CreateReader(fileStream);
             var dataSet = reader.AsDataSet();
-            
-            // Проверка на пустой файл
+
             if (dataSet.Tables.Count == 0) return 0;
-            
+
             var dataTable = dataSet.Tables[0];
             int count = 0;
 
-            for (int i = 1; i < dataTable.Rows.Count; i++) 
+            // Пропускаем заголовок (i=1)
+            for (int i = 1; i < dataTable.Rows.Count; i++)
             {
                 var row = dataTable.Rows[i];
-                string name = row[0]?.ToString();
+
+                // 0. Название
+                string name = row[0]?.ToString()?.Trim();
                 if (string.IsNullOrWhiteSpace(name)) continue;
 
+                // 1. Цена
                 decimal price = 0;
                 if (decimal.TryParse(row[1]?.ToString(), out var p)) price = p;
 
-                string description = row[2]?.ToString() ?? "";
+                // 2. Описание
+                string description = row[2]?.ToString()?.Trim() ?? "";
 
-                // ЧИТАЕМ КАРТИНКУ (Колонка D / Индекс 3)
+                // 3. Фото
                 string? imageUrl = null;
-                if (dataTable.Columns.Count > 3) // Проверка, что колонка вообще есть
+                if (dataTable.Columns.Count > 3) imageUrl = row[3]?.ToString()?.Trim();
+
+                // 4. Цвет
+                string color = "Микс";
+                if (dataTable.Columns.Count > 4)
                 {
-                    imageUrl = row[3]?.ToString();
+                    var val = row[4]?.ToString()?.Trim();
+                    if (!string.IsNullOrEmpty(val)) color = val;
+                }
+
+                // 5. Повод
+                string occasion = "Без повода";
+                if (dataTable.Columns.Count > 5)
+                {
+                    var val = row[5]?.ToString()?.Trim();
+                    if (!string.IsNullOrEmpty(val)) occasion = val;
                 }
 
                 // Логика поиска и обновления
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name && p.ShopId == shopId);
+
                 if (product != null)
                 {
+                    // ОБНОВЛЕНИЕ
                     product.BasePrice = price;
-                    // Обновляем описание, если нужно
                     if (!string.IsNullOrEmpty(description)) product.Description = description;
-                    if (!string.IsNullOrEmpty(imageUrl)) product.ImageUrl = imageUrl; // <--- ОБНОВЛЯЕМ ССЫЛКУ
+                    if (!string.IsNullOrEmpty(imageUrl)) product.ImageUrl = imageUrl;
+                    // Обновляем фильтры тоже
+                    product.Color = color;
+                    product.Occasion = occasion;
                 }
                 else
                 {
+                    // СОЗДАНИЕ
                     product = new Product
                     {
                         Name = name,
                         BasePrice = price,
                         Description = description,
-                        ImageUrl = imageUrl, // <--- ЗАПИСЫВАЕМ ССЫЛКУ
+                        ImageUrl = imageUrl,
                         ShopId = shopId,
                         IsDailyOffer = false,
-                        AssemblyTimeMinutes = 30,
-                        CompositionJson = "{}", // Инициализируем, чтобы не было null
-                        Color = "Микс", // Дефолтное значение
-                        Occasion = "Без повода"
+                        AssemblyTimeMinutes = 30, 
+                        CompositionJson = "{}",
+                        Color = color,       
+                        Occasion = occasion 
                     };
                     _context.Products.Add(product);
                 }
@@ -119,7 +140,7 @@ namespace FlowMarket.Infrastructure.Services
                 if (product != null)
                 {
                     product.BasePrice = price;
-                    product.ImageUrl = picture; // Обновляем картинку!
+                    product.ImageUrl = picture;
                     if (!string.IsNullOrEmpty(description)) product.Description = description;
                 }
                 else
@@ -129,7 +150,7 @@ namespace FlowMarket.Infrastructure.Services
                         Name = name,
                         BasePrice = price,
                         Description = description,
-                        ImageUrl = picture, // Записываем картинку
+                        ImageUrl = picture, 
                         ShopId = shopId,
                         IsDailyOffer = false,
                         AssemblyTimeMinutes = 30,

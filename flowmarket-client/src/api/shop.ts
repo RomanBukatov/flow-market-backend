@@ -49,5 +49,22 @@ export const shopApi = {
   getPublicShop: async (id: string): Promise<Shop> => {
     const response = await api.get<Shop>(`/Shops/${id}`);
     return response.data;
+  },
+
+  // ИМПОРТ EXCEL
+  importExcel: async (file: File, shopId: string): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    // shopId передаем в query params, как ждет контроллер
+    const response = await api.post(`/Catalog/import?shopId=${shopId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  // ИМПОРТ YML
+  importYml: async (url: string, shopId: string): Promise<any> => {
+    const response = await api.post(`/Catalog/import-yml?shopId=${shopId}&url=${encodeURIComponent(url)}`);
+    return response.data;
   }
 };

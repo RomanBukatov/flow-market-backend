@@ -1,8 +1,9 @@
 import { Tabs } from 'antd';
-import { ShopOutlined, AppstoreAddOutlined, OrderedListOutlined } from '@ant-design/icons';
+import { ShopOutlined, AppstoreAddOutlined, OrderedListOutlined, ImportOutlined } from '@ant-design/icons';
 import { ShopTab } from './seller/ShopTab';
-import { SellerProductsTab } from './seller/SellerProductsTab'; // <--- ИМПОРТ
-import { SellerOrdersTab } from './seller/SellerOrdersTab';     // <--- ИМПОРТ
+import { SellerProductsTab } from './seller/SellerProductsTab'; 
+import { SellerOrdersTab } from './seller/SellerOrdersTab';     
+import { ImportTab } from './seller/ImportTab';     
 
 export const SellerDashboard = () => {
   const items = [
@@ -16,13 +17,19 @@ export const SellerDashboard = () => {
       key: 'products',
       label: 'Товары',
       icon: <AppstoreAddOutlined />,
-      children: <SellerProductsTab />, // <--- ВСТАВЬ КОМПОНЕНТ
+      children: <SellerProductsTab />, 
     },
     {
       key: 'orders',
       label: 'Входящие заказы',
       icon: <OrderedListOutlined />,
-      children: <SellerOrdersTab />,   // <--- ВСТАВЬ КОМПОНЕНТ
+      children: <SellerOrdersTab />,  
+    },
+    {
+      key: 'import',
+      label: 'Импорт',
+      icon: <ImportOutlined />,
+      children: <ImportTab />,
     },
   ];
 
