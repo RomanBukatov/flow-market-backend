@@ -72,6 +72,10 @@ namespace FlowMarket.Api.Controllers
                 if (!string.IsNullOrEmpty(filter.Occasion) && filter.Occasion != "Все")
                     query = query.Where(p => p.Occasion == filter.Occasion);
 
+                // Фильтр по Городу (Ищем по городу Магазина)
+                if (!string.IsNullOrEmpty(filter.City) && filter.City != "Все города")
+                    query = query.Where(p => p.Shop.City == filter.City);
+
                 // Фильтр "Собран сегодня"
                 if (filter.IsDailyOffer.HasValue && filter.IsDailyOffer.Value)
                 {

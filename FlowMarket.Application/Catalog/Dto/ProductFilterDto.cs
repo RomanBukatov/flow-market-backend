@@ -8,7 +8,8 @@ namespace FlowMarket.Application.Catalog.Dto
         public int? MaxAssemblyTime { get; set; } 
         public string? Search { get; set; } 
         public string? Occasion { get; set; }
-        public Guid? ShopId { get; set; }     
-        public bool? IsDailyOffer { get; set; } 
+        public Guid? ShopId { get; set; }
+        public bool? IsDailyOffer { get; set; }
+        public string? City { get; set; }
     }
 }

@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { Typography, FloatButton, Pagination, Segmented, Row, Col, Drawer, Button } from 'antd';
-import { ShoppingCartOutlined, AppstoreOutlined, BarsOutlined, FilterOutlined } from '@ant-design/icons';
+import { Typography, Pagination, Segmented, Row, Col, Drawer, Button } from 'antd';
+import { AppstoreOutlined, BarsOutlined, FilterOutlined } from '@ant-design/icons';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { catalogApi } from '../../api/catalog';
-import { useCartStore } from '../../store/cartStore';
-import { CartDrawer } from '../../components/CartDrawer';
 import { ProductGrid } from '../../components/ProductGrid';
 import { ProductFilters } from '../../components/ProductFilters';
 import type { ProductFilter } from '../../types/catalog';
+import { useCityStore } from '../../store/cityStore';
 
 const { Title } = Typography;
 const PAGE_SIZE = 48;
@@ -18,16 +17,17 @@ export const CatalogPage = () => {
 
   // Стейт фильтров
   const [filters, setFilters] = useState<ProductFilter>({});
+  const currentCity = useCityStore((state) => state.currentCity);
 
   const { data: pagedResponse, isFetching } = useQuery({
-    queryKey: ['products', page, filters], // <--- Добавили filters в ключ! При изменении - авто-рефетч
-    queryFn: () => catalogApi.getProducts(page, PAGE_SIZE, filters),
-    placeholderData: keepPreviousData, // <--- МАГИЯ: Оставляет старые данные, пока грузятся новые
+    queryKey: ['products', page, filters, currentCity], 
+    queryFn: () => catalogApi.getProducts(page, PAGE_SIZE, {
+      ...filters,
+      city: currentCity === 'Все города' ? undefined : currentCity
+    }),
+    placeholderData: keepPreviousData,
   });
 
-  // Достаем количество товаров для бейджика на кнопке
-  const cartItemsCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
-  const [cartOpen, setCartOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   return (
@@ -92,18 +92,7 @@ export const CatalogPage = () => {
                </div>
             </Col>
          </Row>
-      </div>
-
-      {/* ПЛАВАЮЩАЯ КНОПКА КОРЗИНЫ (Всегда видна) */}
-      <FloatButton 
-        icon={<ShoppingCartOutlined />} 
-        type="primary" 
-        style={{ width: 60, height: 60, right: 24, bottom: 24 }}
-        badge={{ count: cartItemsCount, color: 'blue' }} // Показывает кол-во товаров
-        onClick={() => setCartOpen(true)}
-      />
-
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+       </div>
     </>
   );
 };

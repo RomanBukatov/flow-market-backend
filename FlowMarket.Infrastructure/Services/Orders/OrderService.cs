@@ -2,6 +2,8 @@ using FlowMarket.Application.Common.Interfaces;
 using FlowMarket.Application.Orders.Dto;
 using FlowMarket.Application.Orders.Interfaces;
 using FlowMarket.Application.Payments.Interfaces;
+using FlowMarket.Application.Shops.Interfaces;
+using FlowMarket.Application.Shops.Dto;
 using FlowMarket.Domain.Entities.Orders;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -16,17 +18,20 @@ namespace FlowMarket.Infrastructure.Services.Orders
     {
         private readonly AppDbContext _context;
         private readonly IPaymentGateway _paymentGateway;
-        private readonly INotificationService _notificationService; 
+        private readonly INotificationService _notificationService;
+        private readonly IDeliveryZoneService _deliveryService; // <--- Новое поле
 
         // 2. Внедрили через конструктор
         public OrderService(
             AppDbContext context,
             IPaymentGateway paymentGateway,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IDeliveryZoneService deliveryService) // <--- Внедряем
         {
             _context = context;
             _paymentGateway = paymentGateway;
             _notificationService = notificationService;
+            _deliveryService = deliveryService; // <--- Присваиваем
         }
 
         public async Task<List<SellerOrderDto>> GetSellerOrdersAsync(Guid userId)
@@ -120,7 +125,7 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 BuyerId = userId,
                 UserPhone = dto.UserPhone,
                 UserAddress = dto.UserAddress,
-                TotalAmount = totalAmount,
+                TotalAmount = 0, // Сначала 0
                 PaymentTransactionId = string.Empty,
                 // Status по дефолту New (из-за инициализации в классе или дефолтного значения enum),
                 // но лучше явно не задавать, если не уверены
@@ -130,6 +135,8 @@ namespace FlowMarket.Infrastructure.Services.Orders
 
             // 4. Группировка по магазинам (Создаем SubOrders)
             var productsByShop = products.GroupBy(p => p.ShopId);
+
+            decimal finalTotalAmount = 0;
 
             foreach (var shopGroup in productsByShop)
             {
@@ -150,18 +157,42 @@ namespace FlowMarket.Infrastructure.Services.Orders
                     currentSubOrderItems.Add(orderItem);
                 }
 
+                // РАСЧЕТ ДОСТАВКИ
+                decimal deliveryPrice = 0;
+                try
+                {
+                    // Вызываем наш калькулятор
+                    deliveryPrice = await _deliveryService.CalculateDeliveryPriceAsync(new CalculateDeliveryDto
+                    {
+                        ShopId = shopGroup.Key,
+                        UserLatitude = dto.UserLatitude,
+                        UserLongitude = dto.UserLongitude,
+                        OrderTotalAmount = shopTotal
+                    });
+                }
+                catch
+                {
+                    // Если адрес вне зоны - можно либо кидать ошибку, либо ставить какую-то дефолтную цену
+                    // Для MVP, если не смогли посчитать (например, координаты 0,0), ставим 0 или фиксированную
+                    deliveryPrice = 0;
+                }
+
                 var subOrder = new SubOrder
                 {
                     Order = order,
                     ShopId = shopGroup.Key,
                     Status = OrderStatus.New,
                     PlatformCommission = shopTotal * 0.20m,
-                    ShopAmount = shopTotal * 0.80m,
+                    ShopAmount = (shopTotal * 0.80m) + deliveryPrice,
                     Items = currentSubOrderItems
                 };
 
+                finalTotalAmount += shopTotal + deliveryPrice; // Накапливаем итого
                 _context.SubOrders.Add(subOrder);
             }
+
+            // ФИНАЛ: Обновляем сумму в главном заказе
+            order.TotalAmount = finalTotalAmount;
 
             // 5. Сохраняем
             await _context.SaveChangesAsync();

@@ -3,8 +3,10 @@ import { useCartStore } from '../../store/cartStore';
 import { useMutation } from '@tanstack/react-query';
 import { ordersApi } from '../../api/orders';
 import type { CreateOrderDto } from '../../api/orders';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AddressInput } from '../../components/AddressInput';
+import { shopApi } from '../../api/shop';
 
 const { Title } = Typography;
 
@@ -12,13 +14,53 @@ export const CheckoutPage = () => {
   const { items, getTotalPrice, clearCart } = useCartStore();
   const navigate = useNavigate();
   const [successData, setSuccessData] = useState<any>(null);
+  
+  // Стейт доставки
+  const [deliveryPrice, setDeliveryPrice] = useState<number | null>(null);
+  const [deliveryError, setDeliveryError] = useState<string | null>(null);
+  const [addressData, setAddressData] = useState<{address: string, lat: number, lon: number} | null>(null);
+
+  const productsTotal = getTotalPrice();
+  const finalTotal = productsTotal + (deliveryPrice || 0);
+
+  // Обработчик выбора адреса
+  const handleAddressSelect = (address: string, lat: number, lon: number) => {
+    setAddressData({ address, lat, lon });
+    calculateDelivery(lat, lon);
+  };
+
+  // Функция расчета
+  const calculateDelivery = async (lat: number, lon: number) => {
+    if (items.length === 0) return;
+    
+    // Берем ID магазина из первого товара (упрощение для MVP)
+    const shopId = items[0].shopId;
+    
+    try {
+      setDeliveryError(null);
+      const result = await shopApi.calculateDelivery({
+        shopId: shopId,
+        userLatitude: lat,
+        userLongitude: lon,
+        orderTotalAmount: productsTotal
+      });
+      setDeliveryPrice(result.price);
+      message.success(`Доставка: ${result.price} ₽`);
+    } catch (err: any) {
+      setDeliveryPrice(null);
+      setDeliveryError(err.response?.data?.message || "Не удалось рассчитать доставку");
+      message.error("Адрес вне зоны доставки!");
+    }
+  };
 
   // Мутация создания заказа
   const createOrderMutation = useMutation({
     mutationFn: (values: any) => {
       const dto: CreateOrderDto = {
         userPhone: values.phone,
-        userAddress: values.address,
+        userAddress: addressData?.address || values.address, // Берем из DaData
+        userLatitude: addressData?.lat || 0, // <--- Передаем
+        userLongitude: addressData?.lon || 0, // <--- Передаем
         items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
       };
       return ordersApi.createOrder(dto);
@@ -80,8 +122,12 @@ export const CheckoutPage = () => {
             </List.Item>
           )}
         />
-        <div style={{ textAlign: 'right', marginTop: 10, fontWeight: 'bold', fontSize: 18 }}>
-          Итого: {getTotalPrice()} ₽
+        <div style={{ textAlign: 'right', marginTop: 10 }}>
+          <div>Товары: {productsTotal} ₽</div>
+          <div>Доставка: {deliveryPrice !== null ? `${deliveryPrice} ₽` : '---'}</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff4d4f' }}>
+            Итого: {finalTotal} ₽
+          </div>
         </div>
       </Card>
 
@@ -91,8 +137,10 @@ export const CheckoutPage = () => {
             <Input placeholder="+7 (999) 000-00-00" size="large" />
           </Form.Item>
           
-          <Form.Item name="address" label="Адрес доставки" rules={[{ required: true, message: 'Введите адрес' }]}>
-            <Input.TextArea placeholder="Город, улица, дом, подъезд" rows={3} />
+          <Form.Item label="Адрес доставки" required help={deliveryError} validateStatus={deliveryError ? 'error' : ''}>
+            <AddressInput onSelect={handleAddressSelect} />
+            {/* Скрытый инпут, чтобы форма видела значение для валидации, если нужно,
+                но лучше просто использовать стейт addressData при отправке */}
           </Form.Item>
 
           <Button 

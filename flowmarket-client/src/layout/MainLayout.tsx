@@ -1,25 +1,43 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Layout, Dropdown, Button, Space, Avatar } from 'antd';
-import { 
-  UserOutlined, 
-  LogoutOutlined, 
-  ShoppingOutlined, 
-  ShopOutlined, 
-  DownOutlined 
+import { Layout, Dropdown, Button, Space, Avatar, FloatButton, Badge } from 'antd';
+import {
+  UserOutlined,
+  LogoutOutlined,
+  ShoppingOutlined,
+  ShopOutlined,
+  DownOutlined,
+  ShoppingCartOutlined,
+  EnvironmentOutlined
 } from '@ant-design/icons';
+import { useCartStore } from '../store/cartStore';
+import { CartDrawer } from '../components/CartDrawer';
+import { useState } from 'react';
+import { useCityStore, AVAILABLE_CITIES } from '../store/cityStore';
 
 const { Header, Content, Footer } = Layout;
 
 export const MainLayout = () => {
   const navigate = useNavigate();
+  const [cartOpen, setCartOpen] = useState(false);
+  const { currentCity, setCity } = useCityStore();
 
   // Читаем роль из памяти
   const userRole = localStorage.getItem('userRole');
+  const cartItemsCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
+
+  // Меню городов
+  const cityMenu = {
+    items: AVAILABLE_CITIES.map(city => ({
+      key: city,
+      label: city,
+      onClick: () => setCity(city),
+    }))
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('mario-cart-storage');
-    localStorage.removeItem('userRole'); // Не забываем чистить роль
+    localStorage.removeItem('userRole');
     navigate('/login');
   };
 
@@ -81,12 +99,22 @@ export const MainLayout = () => {
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         height: 64 // Явно задаем высоту
       }}>
-        <div 
+        <div
             style={{ fontSize: 20, fontWeight: 800, color: '#ff6b6b', marginRight: 'auto', cursor: 'pointer' }}
             onClick={() => navigate('/catalog')}
         >
             MarioFlowers 🍄
         </div>
+         
+        {/* 👇 ВЫБОР ГОРОДА (DNS STYLE) 👇 */}
+        <Dropdown menu={cityMenu} trigger={['click']}>
+          <Button type="text" icon={<EnvironmentOutlined style={{ color: '#ff6b6b' }} />}>
+             {currentCity} <DownOutlined style={{ fontSize: 10, marginLeft: 5 }} />
+          </Button>
+        </Dropdown>
+        
+        {/* Распорка, чтобы сдвинуть профиль вправо */}
+        <div style={{ marginRight: 'auto' }}></div>
         
         {/* Меню профиля */}
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
@@ -110,6 +138,16 @@ export const MainLayout = () => {
       <Footer style={{ textAlign: 'center', color: '#999', background: '#f1f3f5' }}>
         Mario Flowers ©2026
       </Footer>
+
+      <FloatButton
+        icon={<ShoppingCartOutlined />}
+        type="primary"
+        style={{ width: 60, height: 60, right: 24, bottom: 24 }}
+        badge={{ count: cartItemsCount, color: 'blue' }}
+        onClick={() => setCartOpen(true)}
+      />
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </Layout>
   );
 };

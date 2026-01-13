@@ -29,4 +29,5 @@ export interface ProductFilter {
   occasion?: string;
   shopId?: string;
   isDailyOffer?: boolean; // <--- ДОБАВИТЬ
+  city?: string;
 }

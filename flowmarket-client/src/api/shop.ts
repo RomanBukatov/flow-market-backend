@@ -1,6 +1,14 @@
 import { api } from './instance';
 import type { CreateShopDto, Shop, CreateProductDto, SellerOrder, UpdateShopDto } from '../types/seller';
 
+// Добавь тип для расчета
+export interface CalculateDeliveryDto {
+  shopId: string;
+  userLatitude: number;
+  userLongitude: number;
+  orderTotalAmount: number;
+}
+
 export const shopApi = {
   // --- МАГАЗИН ---
   // Получить мои магазины (берем первый, т.к. у нас пока 1 магазин на юзера)
@@ -65,6 +73,13 @@ export const shopApi = {
   // ИМПОРТ YML
   importYml: async (url: string, shopId: string): Promise<any> => {
     const response = await api.post(`/Catalog/import-yml?shopId=${shopId}&url=${encodeURIComponent(url)}`);
+    return response.data;
+  },
+
+  // КАЛЬКУЛЯТОР
+  calculateDelivery: async (data: CalculateDeliveryDto): Promise<{ price: number, message: string }> => {
+    // Используем axios.post, путь проверь в своем контроллере (обычно DeliveryZones/calculate)
+    const response = await api.post('/DeliveryZones/calculate', data);
     return response.data;
   }
 };

@@ -8,6 +8,8 @@ export interface CartItemDto {
 export interface CreateOrderDto {
   userPhone: string;
   userAddress: string;
+  userLatitude: number; // <--- Добавил
+  userLongitude: number; // <--- Добавил
   items: CartItemDto[];
 }
 
