@@ -5,11 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types/catalog';
 import { useCartStore } from '../store/cartStore';
 import styles from './ProductCard.module.css';
+import { CountdownTimer } from './CountdownTimer';
 
 interface ProductGridProps {
   products: Product[] | undefined;
   viewMode: 'grid' | 'list';
 }
+
 
 export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
@@ -38,6 +40,11 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                   <Col flex="auto">
                     <div style={{ fontSize: 16, fontWeight: 'bold' }}>{product.name}</div>
                     <div style={{ color: '#888' }}>{product.shopName}</div>
+                    {product.isDailyOffer && (
+                      <div style={{ marginTop: 8 }}>
+                        <CountdownTimer createdAt={product.createdAt} />
+                      </div>
+                    )}
                     <Tag icon={<ClockCircleOutlined />} color="warning">{product.assemblyTimeMinutes} мин</Tag>
                   </Col>
                   <Col>
@@ -96,19 +103,26 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
                 </div>
 
                 {/* НАЗВАНИЕ (Ровно 2 строки) */}
-                <div style={{ 
-                  fontSize: 14, 
-                  lineHeight: '18px', 
+                <div style={{
+                  fontSize: 14,
+                  lineHeight: '18px',
                   height: 36,
-                  overflow: 'hidden', 
-                  display: '-webkit-box', 
-                  WebkitLineClamp: 2, 
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
                   marginBottom: 8,
                   color: '#555'
                 }}>
                   {product.name}
                 </div>
+
+                {/* ТАЙМЕР */}
+                {product.isDailyOffer && (
+                  <div style={{ marginTop: 8 }}>
+                    <CountdownTimer createdAt={product.createdAt} />
+                  </div>
+                )}
 
                 {/* ВРЕМЯ */}
                 <div style={{ fontSize: 12, color: '#999', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4 }}>

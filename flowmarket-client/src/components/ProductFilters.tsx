@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Slider, InputNumber, Select, Button, Typography} from 'antd';
+import { Card, Slider, InputNumber, Select, Button, Typography, Switch} from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import type { ProductFilter } from '../types/catalog';
 
@@ -78,6 +78,12 @@ export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
             { value: 'Красный', label: '🔴 Красный' },
             { value: 'Белый', label: '⚪ Белый' },
             { value: 'Розовый', label: '🌸 Розовый' },
+            { value: 'Желтый', label: '🟡 Желтый' },
+            { value: 'Оранжевый', label: '🟠 Оранжевый' },
+            { value: 'Фиолетовый', label: '💜 Фиолетовый' },
+            { value: 'Синий', label: '🔵 Синий' },
+            { value: 'Персиковый', label: '🍑 Персиковый' },
+            { value: 'Зеленый', label: '🟢 Зеленый' },
             { value: 'Микс', label: '🎨 Микс' },
           ]}
         />
@@ -93,12 +99,24 @@ export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
           value={filters.occasion}
           onChange={(v) => onChange({ ...filters, occasion: v })}
           options={[
+            { value: 'Без повода', label: '😐 Без повода' },
             { value: 'День рождения', label: '🎂 День рождения' },
             { value: 'Свидание', label: '❤️ Свидание' },
             { value: 'Свадьба', label: '💍 Свадьба' },
             { value: 'Маме', label: '👩‍👧 Маме' },
-            { value: 'Без повода', label: '😐 Без повода' },
+            { value: 'Юбилей', label: '🎉 Юбилей' },
+            { value: 'Коллеге', label: '💼 Коллеге' },
+            { value: 'Извинение', label: '🙏 Извинение' },
           ]}
+        />
+      </div>
+
+      {/* ФИЛЬТР: СОБРАН СЕГОДНЯ */}
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontWeight: 600 }}>Только собранные сегодня</span>
+        <Switch
+          checked={filters.isDailyOffer}
+          onChange={(checked) => onChange({ ...filters, isDailyOffer: checked || undefined })}
         />
       </div>
 

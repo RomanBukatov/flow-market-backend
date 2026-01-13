@@ -71,6 +71,12 @@ namespace FlowMarket.Api.Controllers
                 // Фильтр по Поводу
                 if (!string.IsNullOrEmpty(filter.Occasion) && filter.Occasion != "Все")
                     query = query.Where(p => p.Occasion == filter.Occasion);
+
+                // Фильтр "Собран сегодня"
+                if (filter.IsDailyOffer.HasValue && filter.IsDailyOffer.Value)
+                {
+                    query = query.Where(p => p.IsDailyOffer);
+                }
             }
 
             // Сортировка и пагинация

@@ -14,5 +14,6 @@ namespace FlowMarket.Application.Catalog.Dto
         public bool IsDailyOffer { get; set; }
         public string Composition { get; set; }
         public int AssemblyTimeMinutes { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

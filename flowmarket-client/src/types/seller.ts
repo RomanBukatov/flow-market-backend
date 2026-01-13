@@ -24,6 +24,7 @@ export interface CreateProductDto {
   assemblyTimeMinutes: number;
   color: string;
   occasion: string;
+  isDailyOffer: boolean;
 }
 
 export interface SellerOrder {

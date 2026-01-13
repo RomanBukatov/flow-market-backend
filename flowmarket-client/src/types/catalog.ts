@@ -9,6 +9,7 @@ export interface Product {
   isDailyOffer: boolean;
   composition: string;
   assemblyTimeMinutes: number;
+  createdAt: string;
 }
 
 export interface PagedResponse<T> {
@@ -27,4 +28,5 @@ export interface ProductFilter {
   search?: string;
   occasion?: string;
   shopId?: string;
+  isDailyOffer?: boolean; // <--- ДОБАВИТЬ
 }

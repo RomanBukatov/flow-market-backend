@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select } from 'antd';
+import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select, Checkbox } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import { catalogApi } from '../../../../api/catalog';
@@ -10,7 +10,7 @@ import type { CreateProductDto } from '../../../../types/seller';
 export const SellerProductsTab = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null); // Храним товар, который редактируем
+  const [editingProduct, setEditingProduct] = useState<any>(null); 
   const [form] = Form.useForm();
 
   // Получаем магазин и товары (как раньше)
@@ -68,6 +68,7 @@ export const SellerProductsTab = () => {
       imageUrl: record.imageUrl,
       color: record.color,
       occasion: record.occasion,
+      isDailyOffer: record.isDailyOffer,
     });
     setIsModalOpen(true);
   };
@@ -96,7 +97,7 @@ export const SellerProductsTab = () => {
 
   return (
     <Card 
-      className="static-card" // <--- Убрали прыжки
+      className="static-card" 
       title={`Мои товары (${myProducts.length})`} 
       extra={<Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Добавить</Button>}
     >
@@ -132,6 +133,12 @@ export const SellerProductsTab = () => {
                   <Select.Option value="Красный">🔴 Красный</Select.Option>
                   <Select.Option value="Белый">⚪ Белый</Select.Option>
                   <Select.Option value="Розовый">🌸 Розовый</Select.Option>
+                  <Select.Option value="Желтый">🟡 Желтый</Select.Option>
+                  <Select.Option value="Оранжевый">🟠 Оранжевый</Select.Option>
+                  <Select.Option value="Фиолетовый">💜 Фиолетовый</Select.Option>
+                  <Select.Option value="Синий">🔵 Синий</Select.Option>
+                  <Select.Option value="Персиковый">🍑 Персиковый</Select.Option>
+                  <Select.Option value="Зеленый">🟢 Зеленый</Select.Option>
                   <Select.Option value="Микс">🎨 Микс</Select.Option>
                 </Select>
               </Form.Item>
@@ -144,15 +151,22 @@ export const SellerProductsTab = () => {
               >
                 <Select placeholder="Выберите...">
                   <Select.Option value="Без повода">😐 Без повода</Select.Option>
-                  <Select.Option value="День рождения">🎂 ДР</Select.Option>
+                  <Select.Option value="День рождения">🎂 День рождения</Select.Option>
                   <Select.Option value="Свидание">❤️ Свидание</Select.Option>
                   <Select.Option value="Свадьба">💍 Свадьба</Select.Option>
+                  <Select.Option value="Маме">👩‍👧 Маме</Select.Option>
+                  <Select.Option value="Юбилей">🎉 Юбилей</Select.Option>
+                  <Select.Option value="Коллеге">💼 Коллеге</Select.Option>
+                  <Select.Option value="Извинение">🙏 Извинение</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
           </Row>
           <Form.Item name="imageUrl" label="Фото">
             <ImageUpload />
+          </Form.Item>
+          <Form.Item name="isDailyOffer" valuePropName="checked">
+            <Checkbox>Собран сегодня (Таймер 24ч)</Checkbox>
           </Form.Item>
           <Button type="primary" htmlType="submit" block loading={saveMutation.isPending}>
             Сохранить

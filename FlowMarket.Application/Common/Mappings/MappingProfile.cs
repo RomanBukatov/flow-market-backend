@@ -19,6 +19,8 @@ namespace FlowMarket.Application.Common.Mappings
                 .ForMember(dest => dest.ShopName, opt => opt.MapFrom(src => src.Shop.Name))
                 .ForMember(dest => dest.ShopId, opt => opt.MapFrom(src => src.ShopId))
                 .ForMember(dest => dest.Composition, opt => opt.MapFrom(src => src.CompositionJson))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.IsDailyOffer, opt => opt.MapFrom(src => src.IsDailyOffer))
                 // Если ImageUrl пустой, ставим заглушку. Если есть - берем его.
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
                     string.IsNullOrEmpty(src.ImageUrl) ? "https://placehold.co/600x400" : src.ImageUrl));

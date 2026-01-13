@@ -13,5 +13,6 @@ namespace FlowMarket.Application.Catalog.Dto
         public string ImageUrl { get; set; }
         public string Color { get; set; }
         public string Occasion { get; set; }
+        public bool IsDailyOffer { get; set; }
     }
 }

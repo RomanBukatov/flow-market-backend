@@ -12,6 +12,8 @@ using System.Text;
 using FlowMarket.Application.Auth.Interfaces;
 using FlowMarket.Infrastructure.DependencyInjection;
 using FlowMarket.Infrastructure.Services.Auth;
+using FlowMarket.Infrastructure.Services.Background;
+using Microsoft.Extensions.Hosting;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -33,6 +35,9 @@ builder.Services.AddScoped<IProductImportService, ProductImportService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+// ФОНОВЫЕ ЗАДАЧИ
+builder.Services.AddHostedService<ProductCleanupService>();
 
 // JWT AUTH (Это оставляем, это работает и нужно)
 builder.Services.AddAuthentication(options =>
