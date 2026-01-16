@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, Row, Col, Tag, Badge, message } from 'antd';
+import { Card, Button, Row, Col, Tag, Badge, message, Empty } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types/catalog';
@@ -16,6 +16,23 @@ interface ProductGridProps {
 export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
   const navigate = useNavigate();
+
+  if (!products || products.length === 0) {
+    return (
+      <div style={{ padding: '50px 0', textAlign: 'center' }}>
+        <Empty
+          image="/empty-cart.png" // Используем картинку пираньи или ту, что для корзины
+          imageStyle={{ height: 150 }}
+          description={
+            <span style={{ color: '#999', fontSize: 18 }}>
+              В этом городе пока нет цветов... <br/>
+              Но мы скоро прилетим на облаке! ☁️
+            </span>
+          }
+        />
+      </div>
+    );
+  }
 
   // Если режим СПИСОК
   if (viewMode === 'list') {
