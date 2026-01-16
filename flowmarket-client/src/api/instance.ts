@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Используем адрес твоего локального бэкенда для разработки
-// Когда будем деплоить, поменяем на адрес сервера
-export const API_URL = 'http://localhost:5009/api';
+export const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5009/api'
+  : `http://${window.location.hostname}:8080/api`;
 
 export const api = axios.create({
   baseURL: API_URL,

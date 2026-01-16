@@ -13,7 +13,7 @@ services:
       - "8080:8080"
     environment:
       # ВАЖНО: Заменить IP реальный IP сервера!
-      - AppUrl=http://№№№№
+      - AppUrl=http://yourdomainorip:8080 
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=flowmarket;Username=admin;Password=password
       - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
