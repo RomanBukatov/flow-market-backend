@@ -3,7 +3,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useMutation } from '@tanstack/react-query';
 import { ordersApi } from '../../api/orders';
 import type { CreateOrderDto } from '../../api/orders';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddressInput } from '../../components/AddressInput';
 import { shopApi } from '../../api/shop';
@@ -92,16 +92,29 @@ export const CheckoutPage = () => {
   // Экран успеха
   if (successData) {
     return (
-      <div style={{ padding: 50 }}>
+      <div style={{ padding: '50px 20px', textAlign: 'center' }}>
         <Result
-          status="success"
+          icon={
+            <img
+              src="/success.png"
+              alt="Success"
+              style={{ width: 120, marginBottom: 10 }}
+            />
+          }
           title="Заказ оформлен!"
-          subTitle={`Номер заказа: ${successData.orderId}. Сумма: ${successData.totalAmount} ₽`}
+          subTitle={
+            <span>
+              Номер заказа: <b>{successData.orderId.substring(0, 8)}...</b><br/>
+              Сумма: <b>{successData.totalAmount} ₽</b>
+            </span>
+          }
           extra={[
-            <Button type="primary" key="pay" onClick={() => window.location.href = successData.paymentLink}>
-              Перейти к оплате
+            <Button type="primary" size="large" key="pay" onClick={() => window.location.href = successData.paymentLink}>
+              ПЕРЕЙТИ К ОПЛАТЕ
             </Button>,
-            <Button key="home" onClick={() => navigate('/catalog')}>В магазин</Button>
+            <Button size="large" key="home" onClick={() => navigate('/catalog')}>
+              В магазин
+            </Button>
           ]}
         />
       </div>

@@ -18,7 +18,7 @@ export const AddressInput = ({ onSelect }: AddressInputProps) => {
     enabled: searchValue.length > 2,
   });
 
-  const handleSelect = (value: string, option: any) => {
+  const handleSelect = (_value: string, option: any) => {
     // В AutoComplete option.item прокидывается так же
     const item: DadataAddress = option.item;
     if (item?.data?.geo_lat && item?.data?.geo_lon) {

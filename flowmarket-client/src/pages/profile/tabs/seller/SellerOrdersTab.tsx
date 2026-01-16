@@ -99,6 +99,7 @@ export const SellerOrdersTab = () => {
         onClose={() => setIsModalOpen(false)}
         orderId={selectedOrder?.subOrderId || null}
         initialData={selectedOrder || undefined}
+        viewMode="seller"
       />
     </Card>
   );

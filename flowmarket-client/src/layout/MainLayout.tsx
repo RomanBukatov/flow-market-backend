@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Layout, Dropdown, Button, Space, Avatar, FloatButton, Badge } from 'antd';
+import { Layout, Dropdown, Button, Space, Avatar, FloatButton } from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,

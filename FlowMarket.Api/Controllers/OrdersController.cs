@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using FlowMarket.Application.Orders.Dto;
 using FlowMarket.Application.Orders.Interfaces;
+using FlowMarket.Domain.Entities.Orders;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -101,19 +102,44 @@ namespace FlowMarket.Api.Controllers
         public async Task<IActionResult> GetOrderDetails(Guid orderId)
         {
             var userId = GetCurrentUserId();
-            // Ищем заказ, который принадлежит этому юзеру
+
             var order = await _context.Orders
-                .Include(o => o.SubOrders).ThenInclude(so => so.Shop)
                 .Include(o => o.SubOrders).ThenInclude(so => so.Items).ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.BuyerId == userId);
 
             if (order == null) return NotFound("Заказ не найден");
 
-            // Тут надо вернуть DTO, но для скорости можно вернуть анонимный объект
-            // Лучше сделай OrderDetailsDto, но пока вернем как есть, чтобы проверить
-            // TODO: Create OrderDetailsDto mapping
-            
-            return Ok(order); // Внимание: тут может быть Loop, нужен DTO!
+            // СОБИРАЕМ ВСЕ ТОВАРЫ ИЗ ВСЕХ ПОДЗАКАЗОВ В ОДИН СПИСОК
+            var allItems = order.SubOrders
+                .SelectMany(so => so.Items)
+                .Select(i => new
+                {
+                    ProductName = i.Product.Name,
+                    Quantity = i.Quantity,
+                    Price = i.Price,
+                    ImageUrl = i.Product.ImageUrl
+                })
+                .ToList();
+
+            // Определяем общий статус (если все завершены - Completed, иначе В работе)
+            var status = order.SubOrders.All(so => so.Status == OrderStatus.Completed)
+                ? "Completed"
+                : "In Progress";
+
+            // Возвращаем структуру, которую ждет Фронтенд (OrderDetails interface)
+            var result = new
+            {
+                OrderId = order.Id,
+                SubOrderId = order.SubOrders.FirstOrDefault()?.Id, // Просто для совместимости
+                CreatedAt = order.CreatedAt,
+                Status = status,
+                UserPhone = order.UserPhone,
+                UserAddress = order.UserAddress,
+                TotalPrice = order.TotalAmount,
+                Items = allItems // <--- ТЕПЕРЬ ТУТ БУДУТ ТОВАРЫ
+            };
+
+            return Ok(result);
         }
 
     }

@@ -55,6 +55,7 @@ export const OrdersTab = () => {
       open={isModalOpen}
       onClose={() => setIsModalOpen(false)}
       orderId={selectedOrderId}
+      viewMode="buyer"
     />
     </>
   );

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, Slider, InputNumber, Select, Button, Typography, Switch} from 'antd';
+import { Card, Slider, InputNumber, Select, Button, Typography, Switch, Input} from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
 import type { ProductFilter } from '../types/catalog';
 
 const { Title } = Typography;
+const { Search } = Input;
 
 interface ProductFiltersProps {
   filters: ProductFilter;
@@ -32,6 +33,18 @@ export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
         <FilterOutlined style={{ marginRight: 8, fontSize: 18, color: '#ff6b6b' }} />
         <Title level={4} style={{ margin: 0 }}>Фильтры</Title>
+      </div>
+
+      {/* ПОИСК */}
+      <div style={{ marginBottom: 24 }}>
+        <Search
+          placeholder="Найти букет..."
+          allowClear
+          enterButton
+          size="large"
+          onSearch={(value) => onChange({ ...filters, search: value })}
+          style={{ width: '100%' }}
+        />
       </div>
 
       {/* ЦЕНА */}

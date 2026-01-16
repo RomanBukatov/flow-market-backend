@@ -1,5 +1,5 @@
-import { Drawer, List, Button, Typography, Image, Space, Empty } from 'antd';
-import { DeleteOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { Drawer, List, Button, Typography, Image, Space } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,10 +31,11 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
       }
     >
       {items.length === 0 ? (
-        <Empty 
-          image={<ShoppingOutlined style={{ fontSize: 64, color: '#bfbfbf' }} />} 
-          description="Корзина пуста"
-        />
+        <div style={{ textAlign: 'center', marginTop: 50 }}>
+          <img src="/empty-cart.png" width={150} style={{ marginBottom: 20 }} />
+          <h3>Корзина пуста</h3>
+          <p>Добавьте цветы, чтобы покормить пиранью!</p>
+        </div>
       ) : (
         <List
           itemLayout="horizontal"

@@ -1,4 +1,4 @@
-import { Modal, List, Typography, Image, Descriptions, Tag, Spin, Alert, Button, message } from 'antd';
+import { Modal, List, Typography, Image, Descriptions, Tag, Space, Spin, Alert, Button, message } from 'antd';
 import { WhatsAppOutlined } from '@ant-design/icons';
 import type { SellerOrder } from '../types/seller';
 import { useQuery } from '@tanstack/react-query';
@@ -9,9 +9,10 @@ interface OrderDetailsModalProps {
   onClose: () => void;
   orderId: string | null;
   initialData?: SellerOrder | null;
+  viewMode: 'seller' | 'buyer'; // <--- НОВЫЙ ПРОП (ОБЯЗАТЕЛЬНЫЙ)
 }
 
-export const OrderDetailsModal = ({ open, onClose, orderId, initialData }: OrderDetailsModalProps) => {
+export const OrderDetailsModal = ({ open, onClose, orderId, initialData, viewMode }: OrderDetailsModalProps) => {
   const { data: fetchedOrder, isLoading, isError } = useQuery({
     queryKey: ['order-details', orderId],
     queryFn: () => userApi.getOrderDetails(orderId!),
@@ -32,15 +33,26 @@ export const OrderDetailsModal = ({ open, onClose, orderId, initialData }: Order
     }
   };
 
-  // Функция для WhatsApp
   const handleWhatsApp = () => {
-    const phone = order?.userPhone?.replace(/[^0-9]/g, '');
-    if (!phone) {
-        message.error('Телефон клиента не указан');
-        return;
+    if (!order) return;
+
+    // ЛОГИКА ДЛЯ СЕЛЛЕРА (Пишем клиенту)
+    if (viewMode === 'seller') {
+        const phone = order.userPhone?.replace(/[^0-9]/g, '');
+        if (!phone) {
+            message.error('Телефон клиента не указан');
+            return;
+        }
+        const text = `Здравствуйте! По поводу заказа #${order.subOrderId?.substring(0,8) || order.orderId} на MarioFlowers.`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
     }
-    const text = `Здравствуйте! По поводу заказа #${order?.subOrderId?.substring(0,8) || order?.orderId || ''} на MarioFlowers.`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+    // ЛОГИКА ДЛЯ ПОКУПАТЕЛЯ (Пишем в поддержку/Виктору)
+    else {
+        // Тут пока хардкод номера поддержки (Виктора), т.к. телефона магазина в базе нет
+        const supportPhone = "79000000000"; // <--- ЗАМЕНИТЬ НА НОМЕР ВИКТОРА
+        const text = `Здравствуйте! У меня вопрос по заказу #${order.subOrderId?.substring(0,8) || order.orderId}.`;
+        window.open(`https://wa.me/${supportPhone}?text=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   return (
@@ -64,12 +76,19 @@ export const OrderDetailsModal = ({ open, onClose, orderId, initialData }: Order
             <Descriptions.Item label="Статус">
               <Tag color={getStatusColor(order.status)}>{order.status}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Телефон клиента">
-              {order.userPhone || 'Скрыт'}
-            </Descriptions.Item>
+            
+            {/* Адрес показываем всегда */}
             <Descriptions.Item label="Адрес доставки">
               {order.userAddress || 'Скрыт'}
             </Descriptions.Item>
+
+            {/* Телефон клиента показываем ТОЛЬКО СЕЛЛЕРУ */}
+            {viewMode === 'seller' && (
+                <Descriptions.Item label="Телефон клиента">
+                    {order.userPhone || 'Скрыт'}
+                </Descriptions.Item>
+            )}
+
             <Descriptions.Item label="Общая сумма">
               <Typography.Text strong>{order.totalPrice} ₽</Typography.Text>
             </Descriptions.Item>
@@ -77,36 +96,52 @@ export const OrderDetailsModal = ({ open, onClose, orderId, initialData }: Order
 
           <Typography.Title level={5} style={{ marginBottom: 16 }}>Товары</Typography.Title>
 
-          <List
-            itemLayout="horizontal"
-            dataSource={order.items || []}
-            renderItem={(item: any) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={<Image src={item.imageUrl || "https://placehold.co/100"} width={60} style={{ borderRadius: 8 }} preview={false} />}
-                  title={item.productName}
-                  description={`${item.price} ₽ x ${item.quantity} шт.`}
-                />
-                <div style={{ fontWeight: 'bold' }}>{item.price * item.quantity} ₽</div>
-              </List.Item>
-            )}
-          />
+          {/* Проверяем, есть ли товары */}
+          {order.items && order.items.length > 0 ? (
+            <List
+              itemLayout="horizontal"
+              dataSource={order.items}
+              renderItem={(item: any) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={<Image src={item.imageUrl || "https://placehold.co/100"} width={60} style={{ borderRadius: 8 }} preview={false} />}
+                    title={item.productName}
+                    description={
+                       <Space>
+                         <span>{item.price} ₽ x {item.quantity} шт.</span>
+                         <Typography.Text strong>
+                           {item.price * item.quantity} ₽
+                         </Typography.Text>
+                       </Space>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          ) : (
+            /* КАРТИНКА, ЕСЛИ ПУСТО */
+            <div style={{ textAlign: 'center', padding: '30px 0' }}>
+              <img
+                src="/empty-cart.png" // Или /question-block.png
+                alt="No items"
+                style={{ width: 120, marginBottom: 15, opacity: 0.8 }}
+              />
+              <div style={{ color: '#999', fontSize: 16 }}>
+                Информации о товарах нет
+              </div>
+            </div>
+          )}
 
-          {/* 👇 ВОТ ОНА - КНОПКА WHATSAPP 👇 */}
           <div style={{ marginTop: 24 }}>
              <Button 
                 block 
                 size="large"
                 icon={<WhatsAppOutlined style={{ color: '#25D366', fontSize: 20 }} />}
-                style={{ 
-                    borderColor: '#25D366', 
-                    color: '#25D366', 
-                    height: 50, 
-                    fontWeight: 600 
-                }}
+                style={{ borderColor: '#25D366', color: '#25D366', height: 50, fontWeight: 600 }}
                 onClick={handleWhatsApp}
              >
-                Написать клиенту в WhatsApp
+                {/* МЕНЯЕМ ТЕКСТ КНОПКИ */}
+                {viewMode === 'seller' ? 'Написать клиенту в WhatsApp' : 'Написать в Поддержку'}
              </Button>
           </div>
 
