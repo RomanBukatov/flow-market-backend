@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using FlowMarket.Application.Shops.Dto;
 using FlowMarket.Application.Shops.Interfaces;
+using FlowMarket.Domain.Entities.Orders;
 using FlowMarket.Domain.Entities.Shops;
 using FlowMarket.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +77,35 @@ namespace FlowMarket.Infrastructure.Services.Shops
             if (shop == null) return null;
 
             return _mapper.Map<ShopDto>(shop);
+        }
+
+        public async Task<ShopStatsDto> GetShopStatsAsync(Guid userId)
+        {
+            // 1. Находим магазин юзера
+            var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == userId);
+            if (shop == null) return new ShopStatsDto();
+
+            // 2. Берем все подзаказы этого магазина
+            var orders = await _context.SubOrders
+                .Where(so => so.ShopId == shop.Id)
+                .ToListAsync();
+
+            // 3. Считаем математику
+            var completedOrders = orders.Where(o => o.Status == OrderStatus.Completed).ToList();
+
+            var stats = new ShopStatsDto
+            {
+                TotalOrders = orders.Count,
+                CompletedOrders = completedOrders.Count,
+                TotalRevenue = completedOrders.Sum(o => o.ShopAmount),
+            };
+
+            if (stats.CompletedOrders > 0)
+            {
+                stats.AverageCheck = Math.Round(stats.TotalRevenue / stats.CompletedOrders, 0);
+            }
+
+            return stats;
         }
     }
 }

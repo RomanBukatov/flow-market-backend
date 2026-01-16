@@ -117,3 +117,30 @@ h1, h2, h3 {
     display: none !important;
   }
 }
+
+/* Адаптив Шапки */
+.header-logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff6b6b;
+  margin-right: auto;
+  cursor: pointer;
+  white-space: nowrap; /* Запрещаем перенос текста */
+}
+
+@media (max-width: 576px) {
+  /* На мобилках уменьшаем лого */
+  .header-logo {
+    font-size: 16px !important;
+  }
+
+  /* Уменьшаем отступы в шапке */
+  .ant-layout-header {
+    padding: 0 10px !important;
+  }
+
+  /* Скрываем текст "Аккаунт", оставляем только аватарку */
+  .header-account-text {
+    display: none !important;
+  }
+}

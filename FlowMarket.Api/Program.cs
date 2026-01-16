@@ -95,9 +95,9 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection(); // Выключено для VPS
 
 app.UseCors("AllowAll");
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseStaticFiles();
 app.MapControllers();
 
 // МИГРАЦИИ И СИДИНГ

@@ -54,11 +54,12 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 TotalPrice = so.ShopAmount,
                 Items = so.Items.Select(i => new SellerOrderItemDto
                 {
-                    ProductName = i.Product.Name,
+                    // Берем из OrderItem (Снэпшот), а не из i.Product
+                    ProductName = i.ProductName,
                     Quantity = i.Quantity,
                     Price = i.Price,
                     TotalPrice = i.Quantity * i.Price,
-                    ImageUrl = i.Product.ImageUrl
+                    ImageUrl = i.ProductImageUrl // <--- Берем сохраненную картинку
                 }).ToList()
             }).ToList();
 
@@ -152,7 +153,11 @@ namespace FlowMarket.Infrastructure.Services.Orders
                     {
                         ProductId = product.Id,
                         Quantity = qty,
-                        Price = product.BasePrice
+                        Price = product.BasePrice, // Цена на момент покупки
+
+                        // == СОХРАНЯЕМ СНЭПШОТ ==
+                        ProductName = product.Name,       // Сохраняем имя навсегда
+                        ProductImageUrl = product.ImageUrl // Сохраняем картинку навсегда
                     };
                     currentSubOrderItems.Add(orderItem);
                 }

@@ -1,9 +1,10 @@
 import { Tabs } from 'antd';
 import { ShopOutlined, AppstoreAddOutlined, OrderedListOutlined, ImportOutlined } from '@ant-design/icons';
 import { ShopTab } from './seller/ShopTab';
-import { SellerProductsTab } from './seller/SellerProductsTab'; 
-import { SellerOrdersTab } from './seller/SellerOrdersTab';     
-import { ImportTab } from './seller/ImportTab';     
+import { SellerProductsTab } from './seller/SellerProductsTab';
+import { SellerOrdersTab } from './seller/SellerOrdersTab';
+import { ImportTab } from './seller/ImportTab';
+import { SellerStats } from './seller/SellerStats';
 
 export const SellerDashboard = () => {
   const items = [
@@ -33,5 +34,10 @@ export const SellerDashboard = () => {
     },
   ];
 
-  return <Tabs defaultActiveKey="shop" items={items} type="card" />;
+  return (
+    <>
+      <SellerStats />
+      <Tabs defaultActiveKey="shop" items={items} type="card" />
+    </>
+  );
 };

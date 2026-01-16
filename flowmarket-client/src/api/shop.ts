@@ -9,6 +9,13 @@ export interface CalculateDeliveryDto {
   orderTotalAmount: number;
 }
 
+export interface ShopStats {
+  totalRevenue: number;
+  totalOrders: number;
+  completedOrders: number;
+  averageCheck: number;
+}
+
 export const shopApi = {
   // --- МАГАЗИН ---
   // Получить мои магазины (берем первый, т.к. у нас пока 1 магазин на юзера)
@@ -81,5 +88,10 @@ export const shopApi = {
     // Используем axios.post, путь проверь в своем контроллере (обычно DeliveryZones/calculate)
     const response = await api.post('/DeliveryZones/calculate', data);
     return response.data;
-  }
+  },
+
+  getStats: async (): Promise<ShopStats> => {
+    const response = await api.get<ShopStats>('/Shops/stats');
+    return response.data;
+  },
 };

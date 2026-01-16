@@ -108,40 +108,52 @@ namespace FlowMarket.Infrastructure.Services
 
         public async Task<int> ImportFromYmlUrlAsync(string url, Guid shopId)
         {
-            // 1. Скачиваем файл
             using var httpClient = new HttpClient();
-            var xmlStream = await httpClient.GetStreamAsync(url);
+            // Добавляем User-Agent, чтобы сервер Виктора не блокировал бота
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "MarioFlowersBot/1.0");
 
-            // 2. Загружаем XML
+            var xmlStream = await httpClient.GetStreamAsync(url);
             var xdoc = await XDocument.LoadAsync(xmlStream, LoadOptions.None, CancellationToken.None);
 
-            // 3. Ищем товары (в YML они лежат в <shop><offers><offer>)
-            // Учитываем разные неймспейсы, берем просто Descendants("offer")
             var offers = xdoc.Descendants("offer").ToList();
             int count = 0;
 
+            // Словари для умного поиска
+            var categories = xdoc.Descendants("category").ToDictionary(
+                x => x.Attribute("id")?.Value,
+                x => x.Value
+            );
+
             foreach (var offer in offers)
             {
-                // Парсим данные
                 var name = offer.Element("name")?.Value ?? offer.Element("model")?.Value;
                 var priceString = offer.Element("price")?.Value;
                 var description = offer.Element("description")?.Value ?? "";
-                var picture = offer.Element("picture")?.Value; // Ссылка на фото!
+                var picture = offer.Element("picture")?.Value;
 
-                // Категория и параметры (пока пропустим для MVP, берем базу)
+                // Пытаемся достать категорию, если есть
+                var categoryId = offer.Element("categoryId")?.Value;
+                var categoryName = categoryId != null && categories.ContainsKey(categoryId) ? categories[categoryId] : "";
 
                 if (string.IsNullOrWhiteSpace(name)) continue;
+
                 if (!decimal.TryParse(priceString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var price))
                     price = 0;
 
-                // 4. Логика сохранения (копипаст из Excel метода, можно вынести в отдельный метод)
+                // === УМНЫЙ ПАРСИНГ ===
+                string detectedColor = DetectColor(name + " " + description);
+                string detectedOccasion = DetectOccasion(name + " " + description + " " + categoryName);
+
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name && p.ShopId == shopId);
 
                 if (product != null)
                 {
+                    // Обновляем цены/картинки, но стараемся сохранить ручные правки селлера, если они были
                     product.BasePrice = price;
                     product.ImageUrl = picture;
-                    if (!string.IsNullOrEmpty(description)) product.Description = description;
+                    // Обновляем фильтры только если они были дефолтными
+                    if (product.Color == "Микс" || product.Color == null) product.Color = detectedColor;
+                    if (product.Occasion == "Без повода" || product.Occasion == null) product.Occasion = detectedOccasion;
                 }
                 else
                 {
@@ -150,13 +162,16 @@ namespace FlowMarket.Infrastructure.Services
                         Name = name,
                         BasePrice = price,
                         Description = description,
-                        ImageUrl = picture, 
+                        ImageUrl = picture,
                         ShopId = shopId,
                         IsDailyOffer = false,
-                        AssemblyTimeMinutes = 30,
+                        AssemblyTimeMinutes = 30, // Дефолт
                         CompositionJson = "{}",
-                        Color = "Микс",
-                        Occasion = "Из YML"
+                        Color = detectedColor,       // <--- УМНЫЙ ЦВЕТ
+                        Occasion = detectedOccasion, // <--- УМНЫЙ ПОВОД
+
+                        // ВАЖНО: При создании товара сразу делаем снэпшот (если мы добавили эти поля в Product, а не только в OrderItem)
+                        // Но у нас снэпшоты в OrderItem, так что тут ок.
                     };
                     _context.Products.Add(product);
                 }
@@ -165,6 +180,37 @@ namespace FlowMarket.Infrastructure.Services
 
             await _context.SaveChangesAsync();
             return count;
+        }
+
+        // === ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ===
+
+        private string DetectColor(string text)
+        {
+            text = text.ToLower();
+
+            if (text.Contains("красн") || text.Contains("бордо") || text.Contains("red")) return "Красный";
+            if (text.Contains("бел") || text.Contains("white") || text.Contains("светл")) return "Белый";
+            if (text.Contains("розов") || text.Contains("pink")) return "Розовый";
+            if (text.Contains("желт") || text.Contains("yellow")) return "Желтый";
+            if (text.Contains("оранж")) return "Оранжевый";
+            if (text.Contains("синий") || text.Contains("голуб") || text.Contains("blue")) return "Синий";
+            if (text.Contains("фиолет") || text.Contains("сирен")) return "Фиолетовый";
+            if (text.Contains("персик")) return "Персиковый";
+
+            return "Микс"; // Если не нашли
+        }
+
+        private string DetectOccasion(string text)
+        {
+            text = text.ToLower();
+
+            if (text.Contains("рожден") || text.Contains("юбилей")) return "День рождения";
+            if (text.Contains("свад") || text.Contains("невест")) return "Свадьба";
+            if (text.Contains("люб") || text.Contains("сердц") || text.Contains("свидан") || text.Contains("роман")) return "Свидание";
+            if (text.Contains("мам")) return "Маме";
+            if (text.Contains("муж")) return "Коллеге";
+
+            return "Без повода";
         }
     }
 }

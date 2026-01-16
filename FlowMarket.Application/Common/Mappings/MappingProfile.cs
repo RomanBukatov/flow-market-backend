@@ -30,7 +30,8 @@ namespace FlowMarket.Application.Common.Mappings
             CreateMap<Shop, ShopDto>();
             CreateMap<CreateDeliveryZoneDto, DeliveryZone>();
             CreateMap<DeliveryZone, DeliveryZoneDto>();
-            CreateMap<AppUser, UserProfileDto>();
+            CreateMap<AppUser, UserProfileDto>()
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.PhoneNumber)); // <--- ВОТ ЭТА СТРОКА
         }
     }
 }

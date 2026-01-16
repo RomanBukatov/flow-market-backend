@@ -86,42 +86,37 @@ export const MainLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{
-        position: 'fixed', // <--- FIXED вместо sticky
-        top: 0,
-        left: 0, // <--- Гарантируем привязку к левому краю
-        width: '100%',
-        zIndex: 1000, // <--- Чтобы была поверх всего
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px', // Чуть меньше отступы по бокам для мобилок
-        background: 'rgba(255, 255, 255, 0.95)', // Чуть прозрачности (эффект стекла)
-        backdropFilter: 'blur(10px)', // Размытие фона (как в iOS)
+        position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000,
+        display: 'flex', alignItems: 'center',
+        padding: '0 20px', // Базовый паддинг (на мобилке перезапишется CSS)
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        height: 64 // Явно задаем высоту
+        height: 64
       }}>
+        {/* 1. Логотип с классом */}
         <div
-            style={{ fontSize: 20, fontWeight: 800, color: '#ff6b6b', marginRight: 'auto', cursor: 'pointer' }}
+            className="header-logo" // <--- КЛАСС ИЗ CSS
             onClick={() => navigate('/catalog')}
         >
             MarioFlowers 🍄
         </div>
-         
-        {/* 👇 ВЫБОР ГОРОДА (DNS STYLE) 👇 */}
+
+        {/* 2. Город (можно скрыть на очень мелких экранах, если надо, но пока оставим) */}
         <Dropdown menu={cityMenu} trigger={['click']}>
-          <Button type="text" icon={<EnvironmentOutlined style={{ color: '#ff6b6b' }} />}>
-             {currentCity} <DownOutlined style={{ fontSize: 10, marginLeft: 5 }} />
+          <Button type="text" icon={<EnvironmentOutlined style={{ color: '#ff6b6b' }} />} style={{ fontSize: '13px' }}>
+             <span className="hidden-xs">{currentCity}</span> {/* Можно скрывать текст города на xs */}
+             <DownOutlined style={{ fontSize: 10, marginLeft: 5 }} />
           </Button>
         </Dropdown>
-        
-        {/* Распорка, чтобы сдвинуть профиль вправо */}
-        <div style={{ marginRight: 'auto' }}></div>
-        
-        {/* Меню профиля */}
+
+        {/* 3. Профиль */}
         <Dropdown menu={{ items: menuItems }} trigger={['click']}>
           <Button type="text" style={{ height: 'auto', padding: '4px 8px' }}>
             <Space>
-              <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#ff6b6b' }} />
-              <span style={{ fontWeight: 500, color: '#333' }}>Аккаунт</span>
+              <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#ff6b6b' }} size="small" />
+              {/* Класс чтобы скрыть слово "Аккаунт" на мобиле */}
+              <span className="header-account-text" style={{ fontWeight: 500, color: '#333' }}>Аккаунт</span>
               <DownOutlined style={{ fontSize: 10, color: '#999' }} />
             </Space>
           </Button>

@@ -114,10 +114,11 @@ namespace FlowMarket.Api.Controllers
                 .SelectMany(so => so.Items)
                 .Select(i => new
                 {
-                    ProductName = i.Product.Name,
+                    // И тут берем из OrderItem
+                    ProductName = i.ProductName,
                     Quantity = i.Quantity,
                     Price = i.Price,
-                    ImageUrl = i.Product.ImageUrl
+                    ImageUrl = i.ProductImageUrl
                 })
                 .ToList();
 

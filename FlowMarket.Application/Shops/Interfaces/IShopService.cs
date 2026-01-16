@@ -11,5 +11,6 @@ namespace FlowMarket.Application.Shops.Interfaces
        Task<List<ShopDto>> GetUserShopsAsync(Guid userId);
        Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId);
        Task<ShopDto> GetShopByIdAsync(Guid id);
-    }
+       Task<ShopStatsDto> GetShopStatsAsync(Guid userId);
+   }
 }

@@ -76,5 +76,17 @@ namespace FlowMarket.Api.Controllers
 
             return Ok(shop);
         }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+
+            var userId = Guid.Parse(userIdString);
+            var stats = await _shopService.GetShopStatsAsync(userId);
+
+            return Ok(stats);
+        }
     }
 }
