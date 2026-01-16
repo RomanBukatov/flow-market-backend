@@ -20,7 +20,6 @@ System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Inst
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- СЕРВИСЫ ---
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -28,7 +27,6 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 
-// БД и Сервисы
 builder.Services.AddDbContext<AppDbContext>(options =>
      options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IProductImportService, ProductImportService>();
@@ -36,10 +34,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-// ФОНОВЫЕ ЗАДАЧИ
 builder.Services.AddHostedService<ProductCleanupService>();
 
-// JWT AUTH (Это оставляем, это работает и нужно)
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,7 +43,6 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    // Безопасное получение ключа (чтобы не падало с null)
     var key = builder.Configuration["JwtSettings:Key"] ?? "DEV_KEY_ONLY_FOR_LOCALHOST_DONT_USE_IN_PROD_12345";
     var issuer = builder.Configuration["JwtSettings:Issuer"];
     var audience = builder.Configuration["JwtSettings:Audience"];
@@ -68,18 +63,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()  // Разрешаем всем (для разработки)
-              .AllowAnyMethod()  // GET, POST, PUT, DELETE...
-              .AllowAnyHeader(); // Любые заголовки
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
-// OPENAPI (Простая версия, БЕЗ трансформеров, которые ломают сборку)
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// --- ПАЙПЛАЙН ---
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -92,19 +85,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// app.UseHttpsRedirection(); // Выключено для VPS
-
 app.UseCors("AllowAll");
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// МИГРАЦИИ И СИДИНГ
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.Migrate(); 
+    context.Database.Migrate();
     await DbInitializer.SeedAsync(context);
 }
 

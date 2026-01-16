@@ -14,25 +14,21 @@ namespace FlowMarket.Api.Controllers
             _importService = importService;
         }
 
-        // POST: api/catalog/import
         [HttpPost("import")]
-        [DisableRequestSizeLimit] // Разрешаем большие файлы
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> ImportProducts(IFormFile file, Guid shopId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("Файл не выбран");
 
-            // Проверяем расширение
             var ext = Path.GetExtension(file.FileName).ToLower();
             if (ext != ".xlsx" && ext != ".xls")
                 return BadRequest("Разрешены только Excel файлы (.xlsx, .xls)");
 
             try
             {
-                // Открываем поток чтения
                 using var stream = file.OpenReadStream();
-                
-                // Запускаем импорт
+
                 int count = await _importService.ImportFromExcelAsync(stream, shopId);
 
                 return Ok(new { message = $"Успешно обработано товаров: {count}" });
@@ -43,7 +39,6 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // POST: api/catalog/import-yml
         [HttpPost("import-yml")]
         public async Task<IActionResult> ImportYml([FromQuery] string url, [FromQuery] Guid shopId)
         {

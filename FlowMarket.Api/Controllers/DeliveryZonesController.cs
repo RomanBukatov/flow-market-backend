@@ -8,7 +8,7 @@ namespace FlowMarket.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Только для Селлеров
+    [Authorize]
     public class DeliveryZonesController : ControllerBase
     {
         private readonly IDeliveryZoneService _zoneService;
@@ -18,7 +18,6 @@ namespace FlowMarket.Api.Controllers
             _zoneService = zoneService;
         }
 
-        // POST: api/DeliveryZones (Создать зону)
         [HttpPost]
         public async Task<IActionResult> CreateZone(CreateDeliveryZoneDto dto)
         {
@@ -34,7 +33,6 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // GET: api/DeliveryZones (Мои зоны)
         [HttpGet]
         public async Task<IActionResult> GetMyZones()
         {
@@ -43,7 +41,6 @@ namespace FlowMarket.Api.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/DeliveryZones/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteZone(Guid id)
         {
@@ -59,9 +56,8 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // POST: api/DeliveryZones/calculate
         [HttpPost("calculate")]
-        [AllowAnonymous] // Покупателю не обязательно логиниться, чтобы узнать цену
+        [AllowAnonymous]
         public async Task<IActionResult> CalculateDelivery(CalculateDeliveryDto dto)
         {
             try

@@ -22,7 +22,6 @@ namespace FlowMarket.Api.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/users/me
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {

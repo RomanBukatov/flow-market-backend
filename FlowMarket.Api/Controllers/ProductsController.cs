@@ -29,61 +29,51 @@ namespace FlowMarket.Api.Controllers
             _productService = productService;
         }
 
-        // GET: api/products
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetProducts(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 48,
-            [FromQuery] ProductFilterDto filter = null) // <--- Добавили фильтр
+            [FromQuery] ProductFilterDto filter = null)
         {
             var query = _context.Products
                                 .Include(p => p.Shop)
+                                .AsNoTracking()
                                 .Where(p => !p.IsDeleted)
                                 .AsQueryable();
 
-            // === ЛОГИКА ФИЛЬТРАЦИИ ===
             if (filter != null)
             {
-                // Цена
                 if (filter.MinPrice.HasValue)
                     query = query.Where(p => p.BasePrice >= filter.MinPrice.Value);
 
                 if (filter.MaxPrice.HasValue)
                     query = query.Where(p => p.BasePrice <= filter.MaxPrice.Value);
 
-                // Цвет (точное совпадение или частичное)
                 if (!string.IsNullOrEmpty(filter.Color) && filter.Color != "Все")
                     query = query.Where(p => p.Color == filter.Color);
 
-                // Время сборки (все, что быстрее или равно)
                 if (filter.MaxAssemblyTime.HasValue)
                     query = query.Where(p => p.AssemblyTimeMinutes <= filter.MaxAssemblyTime.Value);
 
-                // Поиск по имени
                 if (!string.IsNullOrEmpty(filter.Search))
                     query = query.Where(p => p.Name.ToLower().Contains(filter.Search.ToLower()));
-    
-                // Фильтр по Магазину
+
                 if (filter.ShopId.HasValue)
                     query = query.Where(p => p.ShopId == filter.ShopId.Value);
-    
-                // Фильтр по Поводу
+
                 if (!string.IsNullOrEmpty(filter.Occasion) && filter.Occasion != "Все")
                     query = query.Where(p => p.Occasion == filter.Occasion);
 
-                // Фильтр по Городу (Ищем по городу Магазина)
                 if (!string.IsNullOrEmpty(filter.City) && filter.City != "Все города")
                     query = query.Where(p => p.Shop.City == filter.City);
 
-                // Фильтр "Собран сегодня"
                 if (filter.IsDailyOffer.HasValue && filter.IsDailyOffer.Value)
                 {
                     query = query.Where(p => p.IsDailyOffer);
                 }
             }
 
-            // Сортировка и пагинация
             var totalCount = await query.CountAsync();
 
             var products = await query
@@ -98,24 +88,22 @@ namespace FlowMarket.Api.Controllers
             return Ok(result);
         }
 
-        // GET: api/products/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _context.Products
-                                        .Include(p => p.Shop) // Грузим магазин
+                                        .Include(p => p.Shop)
+                                        .AsNoTracking()
                                         .FirstOrDefaultAsync(p => p.Id == id);
-        
+
             if (product == null || product.IsDeleted)
                 return NotFound(new { message = "Товар не найден" });
-        
+
             var dto = _mapper.Map<ProductDto>(product);
             return Ok(dto);
         }
-        
-        // POST: api/products
-        // Только для Селлеров (создание)
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateProduct(CreateProductDto dto)
@@ -132,8 +120,6 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // DELETE: api/products/{id}
-        // Только для Владельца (удаление)
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteProduct(Guid id)
@@ -150,8 +136,6 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // PUT: api/products/{id}
-        // Только для Владельца (обновление)
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateProduct(Guid id, UpdateProductDto dto)
@@ -168,7 +152,6 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // Вспомогательный метод для получения ID из токена
         private Guid GetCurrentUserId()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

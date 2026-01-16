@@ -18,11 +18,9 @@ namespace FlowMarket.Api.Controllers
             _shopService = shopService;
         }
 
-        // Создать магазин
         [HttpPost]
         public async Task<IActionResult> CreateShop(CreateShopDto dto)
         {
-            // Вытаскиваем ID пользователя из токена
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
 
@@ -32,7 +30,6 @@ namespace FlowMarket.Api.Controllers
             return Ok(result);
         }
 
-        // Мои магазины
         [HttpGet("my")]
         public async Task<IActionResult> GetMyShops()
         {
@@ -45,7 +42,6 @@ namespace FlowMarket.Api.Controllers
             return Ok(result);
         }
 
-        // PUT: api/shops
         [HttpPut]
         public async Task<IActionResult> UpdateShop(UpdateShopDto dto)
         {
@@ -65,9 +61,8 @@ namespace FlowMarket.Api.Controllers
             }
         }
 
-        // GET: api/shops/{id}
         [HttpGet("{id}")]
-        [AllowAnonymous] // Публичный доступ
+        [AllowAnonymous]
         public async Task<IActionResult> GetShopById(Guid id)
         {
             var shop = await _shopService.GetShopByIdAsync(id);

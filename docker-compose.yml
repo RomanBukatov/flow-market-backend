@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 1. НАШ БЭКЕНД
+  # 1. БЭКЕНД (API)
   api:
     image: flowmarket-api
     build:
@@ -10,17 +10,32 @@ services:
     container_name: flowmarket_api
     restart: always
     ports:
-      - "5009:8080"
+      - "8080:8080"
     environment:
+      # ВАЖНО: Заменить IP реальный IP сервера!
+      - AppUrl=http://№№№№
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=flowmarket;Username=admin;Password=password
-      - ASPNETCORE_ENVIRONMENT=Development
-      - AppUrl=http://localhost:5009
+      - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
       - db
     volumes:
-      - ./uploads:/app/wwwroot/images # <--- Проброс папки для картинок
+      # Картинки хранятся снаружи, чтобы не пропали
+      - ./uploads:/app/wwwroot/images
 
-  # 2. БАЗА ДАННЫХ
+  # 2. ФРОНТЕНД (Сайт)
+  frontend:
+    image: flowmarket-client
+    build:
+      context: ./flowmarket-client
+      dockerfile: Dockerfile
+    container_name: flowmarket_client
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  # 3. БАЗА ДАННЫХ
   db:
     image: postgres:16-alpine
     container_name: flowmarket_db
@@ -29,8 +44,6 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: flowmarket
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

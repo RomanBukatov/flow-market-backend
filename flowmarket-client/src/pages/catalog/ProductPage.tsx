@@ -4,6 +4,7 @@ import { Button, Spin, Typography, Tag, Row, Col, Image, Card, Avatar, Space } f
 import { ShoppingCartOutlined, ArrowLeftOutlined, ShopOutlined, ClockCircleOutlined, SafetyCertificateOutlined, CarOutlined, HeartOutlined } from '@ant-design/icons';
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
+import DOMPurify from 'dompurify';
 
 const { Title } = Typography;
 
@@ -132,9 +133,9 @@ export const ProductPage = () => {
         <Title level={3}>О товаре</Title>
         <Card className="static-card">
             {/* Исправление бага с тегами <br> и <p> */}
-            <div 
+            <div
                 style={{ fontSize: 16, lineHeight: 1.6, color: '#444' }}
-                dangerouslySetInnerHTML={{ __html: product.description || "Описание отсутствует." }} 
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description || "") }}
             />
 
             {product.composition && product.composition !== "{}" && (

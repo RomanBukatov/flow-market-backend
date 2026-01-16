@@ -30,29 +30,27 @@ namespace FlowMarket.Api.Controllers
         }
 
         [HttpGet("seller")]
-        [Authorize] // Только для залогиненных
+        [Authorize]
         public async Task<IActionResult> GetSellerOrders()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
-            
+
             var userId = Guid.Parse(userIdString);
-            
+
             var orders = await _orderService.GetSellerOrdersAsync(userId);
             return Ok(orders);
         }
 
-        // POST: api/orders
         [HttpPost]
-        [AllowAnonymous] // Разрешаем гостям
+        [AllowAnonymous]
         public async Task<IActionResult> CreateOrder(CreateOrderDto dto)
         {
             try
             {
-                // Пытаемся достать ID юзера, если он залогинен
                 Guid? userId = null;
                 var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                
+
                 if (!string.IsNullOrEmpty(userIdString) && Guid.TryParse(userIdString, out var parsedId))
                 {
                     userId = parsedId;
@@ -105,16 +103,15 @@ namespace FlowMarket.Api.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.SubOrders).ThenInclude(so => so.Items).ThenInclude(i => i.Product)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.BuyerId == userId);
 
             if (order == null) return NotFound("Заказ не найден");
 
-            // СОБИРАЕМ ВСЕ ТОВАРЫ ИЗ ВСЕХ ПОДЗАКАЗОВ В ОДИН СПИСОК
             var allItems = order.SubOrders
                 .SelectMany(so => so.Items)
                 .Select(i => new
                 {
-                    // И тут берем из OrderItem
                     ProductName = i.ProductName,
                     Quantity = i.Quantity,
                     Price = i.Price,
@@ -122,22 +119,20 @@ namespace FlowMarket.Api.Controllers
                 })
                 .ToList();
 
-            // Определяем общий статус (если все завершены - Completed, иначе В работе)
             var status = order.SubOrders.All(so => so.Status == OrderStatus.Completed)
                 ? "Completed"
                 : "In Progress";
 
-            // Возвращаем структуру, которую ждет Фронтенд (OrderDetails interface)
             var result = new
             {
                 OrderId = order.Id,
-                SubOrderId = order.SubOrders.FirstOrDefault()?.Id, // Просто для совместимости
+                SubOrderId = order.SubOrders.FirstOrDefault()?.Id,
                 CreatedAt = order.CreatedAt,
                 Status = status,
                 UserPhone = order.UserPhone,
                 UserAddress = order.UserAddress,
                 TotalPrice = order.TotalAmount,
-                Items = allItems // <--- ТЕПЕРЬ ТУТ БУДУТ ТОВАРЫ
+                Items = allItems
             };
 
             return Ok(result);

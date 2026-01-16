@@ -6,14 +6,13 @@ namespace FlowMarket.Api.Controllers
     [Route("fake-pay")]
     public class FakePaymentController : ControllerBase
     {
-        // GET: /fake-pay/{orderId}
         [HttpGet("{orderId}")]
         public IActionResult FakePayPage(Guid orderId)
         {
             var html = $@"
                 <html>
                 <head>
-                    <meta charset='utf-8'> <!-- Добавили мета-тег -->
+                    <meta charset='utf-8'>
                     <title>Банк</title>
                 </head>
                 <body style='font-family: sans-serif; text-align: center; padding: 50px;'>
@@ -24,8 +23,7 @@ namespace FlowMarket.Api.Controllers
                 </body>
                 </html>";
 
-            // Явно указываем кодировку в заголовке
-            return Content(html, "text/html; charset=utf-8"); 
+            return Content(html, "text/html; charset=utf-8");
         }
     }
 }

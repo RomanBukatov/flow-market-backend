@@ -40,6 +40,7 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 .Include(so => so.Order)
                 .Include(so => so.Shop)
                 .Include(so => so.Items).ThenInclude(i => i.Product)
+                .AsNoTracking()
                 .Where(so => so.Shop.OwnerId == userId)
                 .ToListAsync();
 
@@ -224,6 +225,7 @@ namespace FlowMarket.Infrastructure.Services.Orders
         {
             var orders = await _context.Orders
                 .Include(o => o.SubOrders) // Грузим подзаказы, чтобы понять статус
+                .AsNoTracking()
                 .Where(o => o.BuyerId == buyerId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
