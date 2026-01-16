@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, Table, Tag, Button, Space, message, Popconfirm } from 'antd';
+import { Card, Table, Tag, Button, Space, message, Popconfirm, Grid, List } from 'antd'; // <--- Grid используется
 import { shopApi } from '../../../../api/shop';
 import type { SellerOrder } from '../../../../types/seller';
-import { useState } from 'react';
 import { OrderDetailsModal } from '../../../../components/OrderDetailsModal';
+
+// Достаем хук для адаптивности
+const { useBreakpoint } = Grid;
 
 export const SellerOrdersTab = () => {
   const queryClient = useQueryClient();
+  const screens = useBreakpoint(); // <--- ВОТ ЭТОЙ СТРОКИ НЕ ХВАТАЛО
+  
+  // Если экран меньше 'md' (планшета), считаем это мобилкой
+  // (screens.md будет false на телефоне)
+  const isMobile = !screens.md; 
+
   const [selectedOrder, setSelectedOrder] = useState<SellerOrder | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -23,6 +32,7 @@ export const SellerOrdersTab = () => {
     },
   });
 
+  // Колонки для ПК версии
   const columns = [
     {
       title: 'Дата',
@@ -53,22 +63,29 @@ export const SellerOrdersTab = () => {
       key: 'action',
       render: (_: any, record: SellerOrder) => (
         <Space>
-           {/* Если статус New (0), показываем кнопку "В работу" (например статус 3 - Assembling) */}
            {record.status === 'New' && (
              <Button 
                size="small" 
                type="primary"
                loading={statusMutation.isPending}
-               onClick={() => statusMutation.mutate({ id: record.subOrderId, status: 3 })}
+               onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ id: record.subOrderId, status: 3 }) }}
              >
                В работу
              </Button>
            )}
 
-           {/* Если не Completed, показываем кнопку "Завершить" (6) */}
            {record.status !== 'Completed' && record.status !== 'Cancelled' && (
-             <Popconfirm title="Заказ доставлен?" onConfirm={() => statusMutation.mutate({ id: record.subOrderId, status: 6 })}>
-                <Button size="small" type="default" style={{ borderColor: 'green', color: 'green' }}>
+             <Popconfirm 
+                title="Заказ доставлен?" 
+                onConfirm={(e) => { e?.stopPropagation(); statusMutation.mutate({ id: record.subOrderId, status: 6 }) }}
+                onCancel={(e) => e?.stopPropagation()}
+             >
+                <Button 
+                    size="small" 
+                    type="default" 
+                    style={{ borderColor: 'green', color: 'green' }}
+                    onClick={(e) => e.stopPropagation()}
+                >
                   Завершить
                 </Button>
              </Popconfirm>
@@ -80,20 +97,77 @@ export const SellerOrdersTab = () => {
 
   return (
     <Card className="static-card" title="Входящие заказы">
-      <Table
-        dataSource={orders}
-        columns={columns}
-        rowKey="subOrderId"
-        loading={isLoading}
-        pagination={{ pageSize: 10 }}
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedOrder(record);
-            setIsModalOpen(true);
-          },
-          style: { cursor: 'pointer' }
-        })}
-      />
+      {isMobile ? (
+        /* --- МОБИЛЬНАЯ ВЕРСИЯ (СПИСОК) --- */
+        <List
+          dataSource={orders}
+          loading={isLoading}
+          renderItem={(item) => (
+            <Card 
+              size="small" 
+              style={{ marginBottom: 10, border: '1px solid #f0f0f0' }}
+              onClick={() => { setSelectedOrder(item); setIsModalOpen(true); }}
+            >
+               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ fontWeight: 'bold' }}>#{item.subOrderId.substring(0, 8)}</span>
+                  <span style={{ color: '#888' }}>{new Date(item.createdAt).toLocaleDateString()}</span>
+               </div>
+               
+               <div style={{ marginBottom: 5 }}>
+                  <div style={{ fontSize: 13 }}>📍 {item.userAddress}</div>
+                  <div style={{ fontWeight: 'bold', fontSize: 16, marginTop: 5 }}>{item.totalPrice} ₽</div>
+               </div>
+
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                  <Tag color={item.status === 'Completed' ? 'green' : item.status === 'New' ? 'orange' : 'blue'}>
+                     {item.status}
+                  </Tag>
+                  
+                  <Space>
+                     {item.status === 'New' && (
+                       <Button 
+                         size="small" 
+                         type="primary" 
+                         onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ id: item.subOrderId, status: 3 }) }}
+                       >
+                         В работу
+                       </Button>
+                     )}
+                     
+                     {item.status !== 'Completed' && item.status !== 'Cancelled' && (
+                       <Popconfirm 
+                            title="Завершить?" 
+                            onConfirm={(e) => { e?.stopPropagation(); statusMutation.mutate({ id: item.subOrderId, status: 6 }) }}
+                            onCancel={(e) => e?.stopPropagation()}
+                        >
+                            <Button size="small" onClick={(e) => e.stopPropagation()}>
+                                Завершить
+                            </Button>
+                       </Popconfirm>
+                     )}
+                  </Space>
+               </div>
+            </Card>
+          )}
+        />
+      ) : (
+        /* --- ПК ВЕРСИЯ (ТАБЛИЦА) --- */
+        <Table
+          dataSource={orders}
+          columns={columns}
+          rowKey="subOrderId"
+          loading={isLoading}
+          pagination={{ pageSize: 10 }}
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedOrder(record);
+              setIsModalOpen(true);
+            },
+            style: { cursor: 'pointer' }
+          })}
+        />
+      )}
+      
       <OrderDetailsModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
