@@ -42,8 +42,7 @@
    docker-compose up -d --build
    ```
 
----
 Powered by [Roman Bukatov](https://github.com/RomanBukatov)
-```
+
 
 
