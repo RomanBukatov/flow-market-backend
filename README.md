@@ -1,4 +1,3 @@
-```markdown
 # 🍄 MarioFlowers — Маркетплейс цветов и подарков
 
 ![.NET 10](https://img.shields.io/badge/.NET-10-blueviolet)
@@ -46,4 +45,5 @@
 ---
 Powered by [Roman Bukatov](https://github.com/RomanBukatov)
 ```
+
 
