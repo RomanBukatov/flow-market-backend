@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Dropdown, Button, Space, Avatar, FloatButton } from 'antd';
 import {
   UserOutlined,
@@ -7,7 +7,8 @@ import {
   ShopOutlined,
   DownOutlined,
   ShoppingCartOutlined,
-  EnvironmentOutlined
+  EnvironmentOutlined,
+  HomeOutlined
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
 import { CartDrawer } from '../components/CartDrawer';
@@ -18,6 +19,7 @@ const { Header, Content, Footer } = Layout;
 
 export const MainLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cartOpen, setCartOpen] = useState(false);
   const { currentCity, setCity } = useCityStore();
 
@@ -143,6 +145,33 @@ export const MainLayout = () => {
       />
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+
+      {/* НИЖНЕЕ МЕНЮ (MOBILE ONLY) */}
+      <div className="bottom-nav">
+        <button
+          className={`nav-item ${location.pathname === '/catalog' ? 'active' : ''}`}
+          onClick={() => navigate('/catalog')}
+        >
+          <HomeOutlined className="nav-icon" />
+          <span>Витрина</span>
+        </button>
+
+        <button
+          className={`nav-item ${location.pathname.includes('profile') && !location.search.includes('orders') ? 'active' : ''}`}
+          onClick={() => navigate('/profile?tab=settings')}
+        >
+          <UserOutlined className="nav-icon" />
+          <span>Профиль</span>
+        </button>
+
+        <button
+          className={`nav-item ${location.search.includes('orders') ? 'active' : ''}`}
+          onClick={() => navigate('/profile?tab=orders')}
+        >
+          <ShoppingOutlined className="nav-icon" />
+          <span>Заказы</span>
+        </button>
+      </div>
     </Layout>
   );
 };

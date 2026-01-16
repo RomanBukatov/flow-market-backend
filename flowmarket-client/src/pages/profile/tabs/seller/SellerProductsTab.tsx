@@ -114,13 +114,21 @@ export const SellerProductsTab = () => {
             <Input />
           </Form.Item>
           <Form.Item name="basePrice" label="Цена" rules={[{ required: true }]}>
-            <InputNumber style={{ width: '100%' }} min={0} />
+            <InputNumber
+              style={{ width: '100%' }}
+              min={0}
+              controls={false}
+            />
           </Form.Item>
           <Form.Item name="description" label="Описание">
             <Input.TextArea />
           </Form.Item>
           <Form.Item name="assemblyTimeMinutes" label="Время сборки (мин)">
-            <InputNumber style={{ width: '100%' }} />
+            <InputNumber
+              style={{ width: '100%' }}
+              min={0}
+              controls={false}
+            />
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>

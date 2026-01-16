@@ -6,6 +6,7 @@ import { ProductPage } from './pages/catalog/ProductPage';
 import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { ShopPage } from './pages/shop/ShopPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { RequireAuth } from './components/RequireAuth';
 import { MainLayout } from './layout/MainLayout';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -27,6 +28,8 @@ function App() {
             <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/shop/:id" element={<ShopPage />} />
+            {/* Вместо редиректа на логин, делаем 404 для неизвестных путей */}
+            <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         {/* Если есть токен - идем в каталог, иначе на вход */}
