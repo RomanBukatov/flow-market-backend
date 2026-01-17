@@ -89,18 +89,18 @@ export const MainLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        width: '100%', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
         zIndex: 1000,
-        display: 'flex', 
+        display: 'flex',
         alignItems: 'center',
         padding: '0 16px',
-        // 👇 ИЗМЕНЯЕМ ФОН И ДОБАВЛЯЕМ ГРАНИЦУ 👇
-        background: '#fafafa', // Очень светлый "молочный" цвет, на нем логотип заиграет
-        borderBottom: '2px solid #f0f0f0', 
-        boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+        // 👇 ЦВЕТ НЕБА МАРИО 👇
+        background: '#6ca0dc',
+        borderBottom: 'none',
+        boxShadow: '0 4px 12px rgba(108, 160, 220, 0.4)', // Голубая тень
         height: 64
       }}>
         {/* 1. Логотип с классом */}
@@ -109,13 +109,15 @@ export const MainLayout = () => {
             onClick={() => navigate('/catalog')}
             style={{ display: 'flex', alignItems: 'center' }}
         >
-            <img src="/logo.webp" alt="MarioFlowers" style={{ height: 40, objectFit: 'contain' }} />
+            {/* Используем прозрачный логотип */}
+            <img src="/logo.png" alt="MarioFlowers" style={{ height: 45, objectFit: 'contain' }} />
         </div>
 
         {/* 2. Город (можно скрыть на очень мелких экранах, если надо, но пока оставим) */}
         <Dropdown menu={cityMenu} trigger={['click']}>
-          <Button type="text" icon={<EnvironmentOutlined style={{ color: '#ff6b6b' }} />} style={{ fontSize: '13px' }}>
-             <span className="hidden-xs">{currentCity}</span> {/* Можно скрывать текст города на xs */}
+          <Button type="text" style={{ color: 'white', fontSize: '13px' }}> {/* color: white */}
+             <EnvironmentOutlined />
+             <span className="hidden-xs">{currentCity}</span>
              <DownOutlined style={{ fontSize: 10, marginLeft: 5 }} />
           </Button>
         </Dropdown>
@@ -124,11 +126,11 @@ export const MainLayout = () => {
         {token ? (
           /* Если залогинен — показываем старое меню */
           <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-            <Button type="text" style={{ height: 'auto', padding: '4px 8px' }}>
+            <Button type="text" style={{ height: 'auto', padding: '4px 8px', color: 'white' }}>
               <Space>
-                <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#ff6b6b' }} size="small" />
+                <Avatar icon={<UserOutlined />} style={{ backgroundColor: 'white' }} size="small" />
                 <span className="header-account-text" style={{ fontWeight: 500 }}>Аккаунт</span>
-                <DownOutlined style={{ fontSize: 10, color: '#999' }} />
+                <DownOutlined style={{ fontSize: 10, color: 'white' }} />
               </Space>
             </Button>
           </Dropdown>
