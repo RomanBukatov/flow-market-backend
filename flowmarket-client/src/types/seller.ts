@@ -3,6 +3,8 @@ export interface CreateShopDto {
   description: string;
   city: string;
   logoUrl?: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Shop {

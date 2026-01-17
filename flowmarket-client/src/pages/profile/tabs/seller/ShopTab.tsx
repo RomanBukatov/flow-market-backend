@@ -5,6 +5,7 @@ import { ImageUpload } from '../../../../components/ImageUpload';
 import { ShopOutlined, PlusOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import type { CreateShopDto, UpdateShopDto } from '../../../../types/seller';
+import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
 
 const { Title, Text } = Typography;
 
@@ -12,8 +13,11 @@ export const ShopTab = () => {
   const queryClient = useQueryClient();
   const [createForm] = Form.useForm();
   const [editForm] = Form.useForm();
-  
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Блокируем скролл, когда модалка открыта
+  useBodyScrollLock(isEditModalOpen);
 
   // 1. Получаем магазин
   const { data: shop, isLoading } = useQuery({
@@ -79,9 +83,25 @@ export const ShopTab = () => {
                 </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="description" label="Описание">
+          <Form.Item name="description" label="Описание" rules={[{ required: true, message: 'Введите описание магазина' }]}>
             <Input.TextArea rows={3} placeholder="Расскажите о себе..." />
           </Form.Item>
+          <div style={{ background: '#f9f9f9', padding: 15, borderRadius: 12, marginBottom: 20 }}>
+            <Text strong>📍 Геолокация (для расчета доставки)</Text>
+            <Row gutter={16} style={{ marginTop: 10 }}>
+              <Col span={12}>
+                <Form.Item name="latitude" label="Широта" rules={[{ required: true }]} initialValue={56.8389}>
+                  <InputNumber style={{ width: '100%' }} precision={6} controls={false} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="longitude" label="Долгота" rules={[{ required: true }]} initialValue={60.5974}>
+                  <InputNumber style={{ width: '100%' }} precision={6} controls={false} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Text type="secondary" style={{ marginTop: 10, display: 'block' }}>Координаты можно посмотреть в Яндекс Картах</Text>
+          </div>
           <Button type="primary" htmlType="submit" block size="large" icon={<PlusOutlined />} loading={createMutation.isPending}>
             Открыть Магазин
           </Button>
@@ -130,6 +150,7 @@ export const ShopTab = () => {
       <Modal
         title="Настройки магазина"
         open={isEditModalOpen}
+        centered
         onCancel={() => setIsEditModalOpen(false)}
         footer={null} // Скрываем стандартные кнопки, используем свои в форме
       >
@@ -154,12 +175,12 @@ export const ShopTab = () => {
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item name="latitude" label="Широта (Lat)" rules={[{ required: true }]}>
-                  <InputNumber style={{ width: '100%' }} precision={6} />
+                  <InputNumber style={{ width: '100%' }} precision={6} controls={false} />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item name="longitude" label="Долгота (Lon)" rules={[{ required: true }]}>
-                  <InputNumber style={{ width: '100%' }} precision={6} />
+                  <InputNumber style={{ width: '100%' }} precision={6} controls={false} />
                 </Form.Item>
               </Col>
             </Row>
