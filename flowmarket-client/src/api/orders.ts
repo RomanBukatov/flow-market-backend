@@ -10,6 +10,7 @@ export interface CreateOrderDto {
   userAddress: string;
   userLatitude: number; // <--- Добавил
   userLongitude: number; // <--- Добавил
+  bonusesToUse: number;
   items: CartItemDto[];
 }
 

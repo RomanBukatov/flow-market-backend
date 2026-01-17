@@ -114,14 +114,26 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 throw new Exception("Один или несколько товаров не найдены (возможно, удалены).");
             }
 
-            // 2. Считаем общую сумму
-            var totalAmount = dto.Items.Sum(item =>
+            // 2. Считаем грязную сумму (без бонусов)
+            decimal subTotal = dto.Items.Sum(item =>
             {
                 var product = products.First(p => p.Id == item.ProductId);
                 return product.BasePrice * item.Quantity;
             });
 
-            // 3. Создаем ГЛАВНЫЙ ЗАКАЗ
+            // 3. ЛОГИКА СПИСАНИЯ
+            decimal bonusesToSubtract = 0;
+            if (userId.HasValue && dto.BonusesToUse > 0)
+            {
+                var user = await _context.AppUsers.FindAsync(userId);
+                // Проверяем: нельзя списать больше, чем есть, и больше, чем, например, 50% от суммы
+                var maxPossibleBonuses = subTotal * 0.5m; // Лимит 50%
+                bonusesToSubtract = Math.Min(Math.Min(user.BonusBalance, dto.BonusesToUse), maxPossibleBonuses);
+
+                user.BonusBalance -= bonusesToSubtract; // Списываем с баланса сразу
+            }
+
+            // 4. Создаем ГЛАВНЫЙ ЗАКАЗ
             var order = new Order
             {
                 BuyerId = userId,
@@ -129,16 +141,17 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 UserAddress = dto.UserAddress,
                 TotalAmount = 0, // Сначала 0
                 PaymentTransactionId = string.Empty,
+                BonusesUsed = bonusesToSubtract, // Сохраняем в заказ
                 // Status по дефолту New (из-за инициализации в классе или дефолтного значения enum),
                 // но лучше явно не задавать, если не уверены
             };
 
             _context.Orders.Add(order);
 
-            // 4. Группировка по магазинам (Создаем SubOrders)
+            // 5. Группировка по магазинам (Создаем SubOrders)
             var productsByShop = products.GroupBy(p => p.ShopId);
 
-            decimal finalTotalAmount = 0;
+            decimal totalDelivery = 0;
 
             foreach (var shopGroup in productsByShop)
             {
@@ -193,12 +206,12 @@ namespace FlowMarket.Infrastructure.Services.Orders
                     Items = currentSubOrderItems
                 };
 
-                finalTotalAmount += shopTotal + deliveryPrice; // Накапливаем итого
+                totalDelivery += deliveryPrice; // Накапливаем доставку
                 _context.SubOrders.Add(subOrder);
             }
 
-            // ФИНАЛ: Обновляем сумму в главном заказе
-            order.TotalAmount = finalTotalAmount;
+            // 6. Итоговая сумма для оплаты в банк
+            order.TotalAmount = subTotal - bonusesToSubtract + totalDelivery;
 
             // 5. Сохраняем
             await _context.SaveChangesAsync();

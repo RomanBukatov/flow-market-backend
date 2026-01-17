@@ -2,7 +2,7 @@ import { Typography, Card, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const { Title, Paragraph } = Typography;
+const { Title} = Typography;
 
 export const LegalPage = ({ title, content }: { title: string, content: string }) => {
   const navigate = useNavigate();

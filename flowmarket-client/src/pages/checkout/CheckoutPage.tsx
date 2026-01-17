@@ -1,12 +1,13 @@
-import { Card, Form, Input, Button, List, Typography, message, Result } from 'antd';
+import { Card, Form, Input, Button, List, Typography, message, Result, Checkbox } from 'antd';
 import { useCartStore } from '../../store/cartStore';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { ordersApi } from '../../api/orders';
 import type { CreateOrderDto } from '../../api/orders';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddressInput } from '../../components/AddressInput';
 import { shopApi } from '../../api/shop';
+import { userApi } from '../../api/user';
 
 const { Title } = Typography;
 
@@ -20,8 +21,13 @@ export const CheckoutPage = () => {
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [addressData, setAddressData] = useState<{address: string, lat: number, lon: number} | null>(null);
 
+  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: userApi.getProfile });
+  const [useBonuses, setUseBonuses] = useState(false);
+
   const productsTotal = getTotalPrice();
-  const finalTotal = productsTotal + (deliveryPrice || 0);
+  const bonusesAvailable = profile?.bonusBalance || 0;
+  const bonusesToUse = useBonuses ? Math.min(bonusesAvailable, productsTotal * 0.5) : 0;
+  const finalTotal = productsTotal + (deliveryPrice || 0) - bonusesToUse;
 
   // Обработчик выбора адреса
   const handleAddressSelect = (address: string, lat: number, lon: number) => {
@@ -61,6 +67,7 @@ export const CheckoutPage = () => {
         userAddress: addressData?.address || values.address, // Берем из DaData
         userLatitude: addressData?.lat || 0, // <--- Передаем
         userLongitude: addressData?.lon || 0, // <--- Передаем
+        bonusesToUse: bonusesToUse,
         items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
       };
       return ordersApi.createOrder(dto);
@@ -138,6 +145,7 @@ export const CheckoutPage = () => {
         <div style={{ textAlign: 'right', marginTop: 10 }}>
           <div>Товары: {productsTotal} ₽</div>
           <div>Доставка: {deliveryPrice !== null ? `${deliveryPrice} ₽` : '---'}</div>
+          {bonusesToUse > 0 && <div>Бонусы: -{bonusesToUse} ₽</div>}
           <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff4d4f' }}>
             Итого: {finalTotal} ₽
           </div>
@@ -156,11 +164,20 @@ export const CheckoutPage = () => {
                 но лучше просто использовать стейт addressData при отправке */}
           </Form.Item>
 
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            block 
-            size="large" 
+          {bonusesAvailable > 0 && (
+            <Card size="small" style={{ marginBottom: 15, background: '#fffbe6' }}>
+              <Checkbox checked={useBonuses} onChange={e => setUseBonuses(e.target.checked)}>
+                Списать бонусы (доступно: {bonusesAvailable} Б)
+              </Checkbox>
+              {useBonuses && <div style={{ color: 'green', fontSize: 12 }}>Будет списано: {bonusesToUse} ₽</div>}
+            </Card>
+          )}
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            size="large"
             loading={createOrderMutation.isPending}
             style={{ marginTop: 10 }}
           >

@@ -10,6 +10,7 @@ public class CreateOrderDto
     // Новые поля
     public double UserLatitude { get; set; }
     public double UserLongitude { get; set; }
-    
+    public decimal BonusesToUse { get; set; }
+
     public List<CartItemDto> Items { get; set; }
 }

@@ -27,8 +27,9 @@ namespace FlowMarket.Domain.Entities.Orders
         // == НОВЫЕ ПОЛЯ ==
         public string UserPhone { get; set; } = string.Empty;
         public string UserAddress { get; set; } = string.Empty;
+        public decimal BonusesUsed { get; set; }
         // ================
-
+        
         public ICollection<SubOrder> SubOrders { get; set; } = new List<SubOrder>();
     }
 }
