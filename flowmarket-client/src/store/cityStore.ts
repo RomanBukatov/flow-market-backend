@@ -8,6 +8,8 @@ interface CityState {
 
 // Список доступных городов (для MVP хардкод, потом можно брать с бэка)
 export const AVAILABLE_CITIES = ['Екатеринбург', 'Москва', 'Санкт-Петербург', 'Новосибирск', 'Все города'];
+// Добавь это ниже:
+export const REAL_CITIES = AVAILABLE_CITIES.filter(c => c !== 'Все города');
 
 export const useCityStore = create<CityState>()(
   persist(

@@ -123,11 +123,12 @@ export const SellerProductsTab = () => {
           <Form.Item name="description" label="Описание">
             <Input.TextArea />
           </Form.Item>
-          <Form.Item name="assemblyTimeMinutes" label="Время сборки (мин)">
+          <Form.Item name="assemblyTimeMinutes" label="Время сборки (мин)" initialValue={30}>
             <InputNumber
               style={{ width: '100%' }}
-              min={0}
-              controls={false}
+              min={10}   // Минимум 10 минут
+              max={2880} // Максимум 48 часов (2 дня)
+              controls={false} // Без стрелок
             />
           </Form.Item>
           <Row gutter={16}>

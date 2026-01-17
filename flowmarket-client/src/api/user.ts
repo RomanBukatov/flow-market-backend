@@ -38,6 +38,10 @@ export const userApi = {
     const response = await api.get<UserProfile>('/Users/me');
     return response.data;
   },
+  updateProfile: async (data: { fullName: string; phoneNumber: string }): Promise<UserProfile> => {
+    const response = await api.put<UserProfile>('/Users/me', data);
+    return response.data;
+  },
   getHistory: async (): Promise<OrderHistoryItem[]> => {
     const response = await api.get<OrderHistoryItem[]>('/Orders/my-history');
     return response.data;

@@ -36,5 +36,24 @@ namespace FlowMarket.Api.Controllers
             var dto = _mapper.Map<UserProfileDto>(user);
             return Ok(dto);
         }
+
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateProfile(UpdateUserDto dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+            var userId = Guid.Parse(userIdString);
+
+            var user = await _context.AppUsers.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            // Обновляем поля
+            user.FullName = dto.FullName;
+            user.PhoneNumber = dto.PhoneNumber;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<UserProfileDto>(user));
+        }
     }
 }

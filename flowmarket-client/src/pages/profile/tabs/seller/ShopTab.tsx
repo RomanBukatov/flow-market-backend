@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, Button, Form, Input, Spin, Typography, message, Result, Modal, Row, Col, InputNumber } from 'antd';
+import { Card, Button, Form, Input, Spin, Typography, message, Result, Modal, Row, Col, InputNumber, Select } from 'antd';
 import { ImageUpload } from '../../../../components/ImageUpload';
 import { ShopOutlined, PlusOutlined, EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import type { CreateShopDto, UpdateShopDto } from '../../../../types/seller';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
+import { REAL_CITIES } from '../../../../store/cityStore';
 
 const { Title, Text } = Typography;
 
@@ -78,8 +79,12 @@ export const ShopTab = () => {
                 </Form.Item>
             </Col>
             <Col span={12}>
-                <Form.Item name="city" label="Город" rules={[{ required: true }]}>
-                    <Input placeholder="Екатеринбург" />
+                <Form.Item name="city" label="Город" rules={[{ required: true, message: 'Выберите город' }]}>
+                  <Select placeholder="Выберите из списка">
+                    {REAL_CITIES.map(city => (
+                      <Select.Option key={city} value={city}>{city}</Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
             </Col>
           </Row>
@@ -155,8 +160,12 @@ export const ShopTab = () => {
         footer={null} // Скрываем стандартные кнопки, используем свои в форме
       >
         <Form layout="vertical" form={editForm} onFinish={(vals) => updateMutation.mutate(vals)}>
-          <Form.Item name="city" label="Город">
-            <Input />
+          <Form.Item name="city" label="Город" rules={[{ required: true, message: 'Выберите город' }]}>
+            <Select placeholder="Выберите из списка">
+              {REAL_CITIES.map(city => (
+                <Select.Option key={city} value={city}>{city}</Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           
           <Form.Item name="description" label="Описание">

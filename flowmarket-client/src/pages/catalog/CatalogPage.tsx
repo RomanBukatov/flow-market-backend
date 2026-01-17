@@ -80,16 +80,21 @@ export const CatalogPage = () => {
                   {/* Пробрасываем товары */}
                    <ProductGrid products={pagedResponse?.items} viewMode={viewMode} />
                </div>
-               {/* Пагинация */}
-               <div style={{ textAlign: 'center', marginTop: 24 }}>
-                 <Pagination
-                   current={page}
-                   total={pagedResponse?.totalCount || 0}
-                   pageSize={PAGE_SIZE}
-                   onChange={setPage}
-                   showSizeChanger={false}
-                 />
-               </div>
+               {/* ПАГИНАЦИЯ (Показываем, только если есть товары И страниц больше 1) */}
+               {pagedResponse && pagedResponse.totalCount > 0 && pagedResponse.totalPages > 1 && (
+                 <div style={{ textAlign: 'center', marginTop: 24, paddingBottom: 20 }}>
+                   <Pagination
+                     current={page}
+                     total={pagedResponse.totalCount}
+                     pageSize={PAGE_SIZE}
+                     onChange={(p) => {
+                       setPage(p);
+                       window.scrollTo({ top: 0, behavior: 'smooth' });
+                     }}
+                     showSizeChanger={false}
+                   />
+                 </div>
+               )}
             </Col>
          </Row>
        </div>
