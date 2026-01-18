@@ -3,13 +3,14 @@ import { WhatsAppOutlined } from '@ant-design/icons';
 import type { SellerOrder } from '../types/seller';
 import { useQuery } from '@tanstack/react-query';
 import { userApi } from '../api/user';
+import { translateStatus } from '../utils/formatters';
 
 interface OrderDetailsModalProps {
   open: boolean;
   onClose: () => void;
   orderId: string | null;
   initialData?: SellerOrder | null;
-  viewMode: 'seller' | 'buyer'; // <--- НОВЫЙ ПРОП (ОБЯЗАТЕЛЬНЫЙ)
+  viewMode: 'seller' | 'buyer'; 
 }
 
 export const OrderDetailsModal = ({ open, onClose, orderId, initialData, viewMode }: OrderDetailsModalProps) => {
@@ -74,7 +75,7 @@ export const OrderDetailsModal = ({ open, onClose, orderId, initialData, viewMod
               {order.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}
             </Descriptions.Item>
             <Descriptions.Item label="Статус">
-              <Tag color={getStatusColor(order.status)}>{order.status}</Tag>
+              <Tag color={getStatusColor(order.status)}>{translateStatus(order.status)}</Tag>
             </Descriptions.Item>
             
             {/* Адрес показываем всегда */}

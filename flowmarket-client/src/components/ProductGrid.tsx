@@ -1,11 +1,13 @@
 import React from 'react';
-import { Card, Button, Row, Col, Tag, Badge, message, Empty } from 'antd';
+import { Card, Button, Row, Col, Tag, Badge, message, Empty, Typography } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../types/catalog';
 import { useCartStore } from '../store/cartStore';
 import styles from './ProductCard.module.css';
 import { CountdownTimer } from './CountdownTimer';
+
+const { Title, Text } = Typography;
 
 interface ProductGridProps {
   products: Product[] | undefined;
@@ -21,13 +23,15 @@ export const ProductGrid = React.memo(({ products, viewMode }: ProductGridProps)
     return (
       <div style={{ padding: '50px 0', textAlign: 'center' }}>
         <Empty
-          image="/empty-cart.png" // Используем картинку пираньи или ту, что для корзины
-          imageStyle={{ height: 150 }}
+          image="/empty-cart.png"
+          imageStyle={{ height: 200 }}
           description={
-            <span style={{ color: '#999', fontSize: 18 }}>
-              В этом городе пока нет цветов... <br/>
-              Но мы скоро прилетим на облаке! ☁️
-            </span>
+            <div style={{ marginTop: 20 }}>
+              <Title level={4} style={{ color: '#999' }}>По вашему запросу ничего не найдено</Title>
+              <Text type="secondary">
+                Попробуйте изменить фильтры, выбрать другой город или загляните позже! ☁️
+              </Text>
+            </div>
           }
         />
       </div>

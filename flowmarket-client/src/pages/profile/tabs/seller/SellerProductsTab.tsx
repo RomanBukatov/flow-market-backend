@@ -66,9 +66,9 @@ export const SellerProductsTab = () => {
       description: record.description,
       assemblyTimeMinutes: record.assemblyTimeMinutes,
       imageUrl: record.imageUrl,
-      color: record.color,
-      occasion: record.occasion,
       isDailyOffer: record.isDailyOffer,
+      color: record.color || null,
+      occasion: record.occasion || null,
     });
     setIsModalOpen(true);
   };

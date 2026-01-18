@@ -1,4 +1,4 @@
-import { Card, Form, Input, Button, List, Typography, message, Result, Checkbox } from 'antd';
+import { Card, Form, Button, List, Typography, message, Result, Checkbox } from 'antd';
 import { useCartStore } from '../../store/cartStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ordersApi } from '../../api/orders';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { AddressInput } from '../../components/AddressInput';
 import { shopApi } from '../../api/shop';
 import { userApi } from '../../api/user';
+import { PhoneInput } from '../../components/PhoneInput';
 
 const { Title } = Typography;
 
@@ -155,7 +156,7 @@ export const CheckoutPage = () => {
       <Card title="Данные доставки">
         <Form layout="vertical" onFinish={(values) => createOrderMutation.mutate(values)}>
           <Form.Item name="phone" label="Телефон" rules={[{ required: true, message: 'Введите телефон' }]}>
-            <Input placeholder="+7 (999) 000-00-00" size="large" />
+            <PhoneInput size="large" />
           </Form.Item>
           
           <Form.Item label="Адрес доставки" required help={deliveryError} validateStatus={deliveryError ? 'error' : ''}>
@@ -180,6 +181,7 @@ export const CheckoutPage = () => {
             size="large"
             loading={createOrderMutation.isPending}
             style={{ marginTop: 10 }}
+            disabled={!!deliveryError || deliveryPrice === null}
           >
             Подтвердить и Оплатить
           </Button>

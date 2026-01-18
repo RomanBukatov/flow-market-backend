@@ -16,9 +16,23 @@ export interface ShopStats {
   averageCheck: number;
 }
 
+export interface DeliveryZone {
+  id: string;
+  zoneName: string;
+  radiusKm: number;
+  price: number;
+  freeDeliveryThreshold?: number;
+}
+
+export interface CreateDeliveryZoneDto {
+  zoneName: string;
+  radiusKm: number;
+  price: number;
+  freeDeliveryThreshold?: number;
+}
+
 export const shopApi = {
-  // --- МАГАЗИН ---
-  // Получить мои магазины (берем первый, т.к. у нас пока 1 магазин на юзера)
+
   getMyShop: async (): Promise<Shop | null> => {
     const response = await api.get<Shop[]>('/Shops/my');
     return response.data[0] || null;
@@ -94,4 +108,19 @@ export const shopApi = {
     const response = await api.get<ShopStats>('/Shops/stats');
     return response.data;
   },
+
+  // ЗОНЫ ДОСТАВКИ
+  getZones: async (): Promise<DeliveryZone[]> => {
+    const response = await api.get<DeliveryZone[]>('/DeliveryZones');
+    return response.data;
+  },
+
+  createZone: async (data: CreateDeliveryZoneDto): Promise<DeliveryZone> => {
+    const response = await api.post<DeliveryZone>('/DeliveryZones', data);
+    return response.data;
+  },
+
+  deleteZone: async (id: string): Promise<void> => {
+    await api.delete(`/DeliveryZones/${id}`);
+  }
 };

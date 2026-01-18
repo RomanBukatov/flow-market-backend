@@ -10,6 +10,8 @@ export interface Product {
   composition: string;
   assemblyTimeMinutes: number;
   createdAt: string;
+  color: string;
+  occasion: string;
 }
 
 export interface PagedResponse<T> {

@@ -22,7 +22,9 @@ namespace FlowMarket.Application.Common.Mappings
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.IsDailyOffer, opt => opt.MapFrom(src => src.IsDailyOffer))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src =>
-                    string.IsNullOrEmpty(src.ImageUrl) ? "https://placehold.co/600x400" : src.ImageUrl));
+                    string.IsNullOrEmpty(src.ImageUrl) ? "https://placehold.co/600x400" : src.ImageUrl))
+                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.Color))
+                .ForMember(dest => dest.Occasion, opt => opt.MapFrom(src => src.Occasion));
 
             CreateMap<CreateProductDto, Product>();
             CreateMap<CreateShopDto, Shop>();

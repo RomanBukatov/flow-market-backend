@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UserProfile } from '../../../api/user';
 import { userApi } from '../../../api/user';
+import { PhoneInput } from '../../../components/PhoneInput';
 
 export const SettingsTab = ({ profile }: { profile: UserProfile | undefined }) => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export const SettingsTab = ({ profile }: { profile: UserProfile | undefined }) =
             <Input />
           </Form.Item>
           <Form.Item name="phoneNumber" label="Телефон" rules={[{ required: true }]}>
-            <Input />
+            <PhoneInput />
           </Form.Item>
           <Button type="primary" htmlType="submit" block loading={updateMutation.isPending}>
             Сохранить
