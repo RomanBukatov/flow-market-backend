@@ -19,19 +19,19 @@ namespace FlowMarket.Infrastructure.Services.Orders
         private readonly AppDbContext _context;
         private readonly IPaymentGateway _paymentGateway;
         private readonly INotificationService _notificationService;
-        private readonly IDeliveryZoneService _deliveryService; // <--- Новое поле
+        private readonly IDeliveryZoneService _deliveryService; 
 
         // 2. Внедрили через конструктор
         public OrderService(
             AppDbContext context,
             IPaymentGateway paymentGateway,
             INotificationService notificationService,
-            IDeliveryZoneService deliveryService) // <--- Внедряем
+            IDeliveryZoneService deliveryService)
         {
             _context = context;
             _paymentGateway = paymentGateway;
             _notificationService = notificationService;
-            _deliveryService = deliveryService; // <--- Присваиваем
+            _deliveryService = deliveryService;
         }
 
         public async Task<List<SellerOrderDto>> GetSellerOrdersAsync(Guid userId)
@@ -42,6 +42,8 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 .Include(so => so.Items).ThenInclude(i => i.Product)
                 .AsNoTracking()
                 .Where(so => so.Shop.OwnerId == userId)
+                // ФИЛЬТР: Показываем только оплаченные и дальше (Исключаем PendingPayment и Cancelled, если надо)
+                .Where(so => so.Status != OrderStatus.PendingPayment)
                 .ToListAsync();
 
             var result = subOrders.Select(so => new SellerOrderDto
@@ -200,7 +202,7 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 {
                     Order = order,
                     ShopId = shopGroup.Key,
-                    Status = OrderStatus.New,
+                    Status = OrderStatus.PendingPayment, // <--- СТАВИМ СТАТУС ОЖИДАНИЯ
                     PlatformCommission = shopTotal * 0.20m,
                     ShopAmount = (shopTotal * 0.80m) + deliveryPrice,
                     Items = currentSubOrderItems
@@ -253,6 +255,27 @@ namespace FlowMarket.Infrastructure.Services.Orders
                     ? "Выполнен"
                     : "В работе"
             }).ToList();
+        }
+
+        public async Task ConfirmPaymentAsync(Guid orderId)
+        {
+            // Ищем все подзаказы этого глобального заказа
+            var subOrders = await _context.SubOrders
+                .Where(so => so.OrderId == orderId)
+                .ToListAsync();
+
+            foreach (var subOrder in subOrders)
+            {
+                // Если он ждет оплаты — переводим в Оплачен
+                if (subOrder.Status == OrderStatus.PendingPayment)
+                {
+                    subOrder.Status = OrderStatus.Paid;
+                }
+            }
+
+            // Тут можно добавить отправку уведомления Селлеру: "Дзынь! Новый оплаченный заказ!"
+
+            await _context.SaveChangesAsync();
         }
     }
 }

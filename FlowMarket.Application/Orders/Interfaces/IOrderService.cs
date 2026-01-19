@@ -12,4 +12,5 @@ public interface IOrderService
     Task<List<SellerOrderDto>> GetSellerOrdersAsync(Guid userId);
     Task ChangeOrderStatusAsync(Guid subOrderId, OrderStatus newStatus, Guid userId);
     Task<List<BuyerOrderDto>> GetBuyerOrdersAsync(Guid buyerId);
+    Task ConfirmPaymentAsync(Guid orderId);
 }

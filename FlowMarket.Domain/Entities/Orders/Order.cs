@@ -6,14 +6,14 @@ namespace FlowMarket.Domain.Entities.Orders
 {
     public enum OrderStatus
     {
-        New,
-        Paid,
-        Confirmed,
-        Assembling,
-        PhotoReady,
-        Delivering,
-        Completed,
-        Cancelled
+        PendingPayment = 0, 
+        Paid = 1,           
+        Confirmed = 2,      
+        Assembling = 3,
+        PhotoReady = 4,
+        Delivering = 5,
+        Completed = 6,
+        Cancelled = 7
     }
 
     public class Order : BaseEntity
