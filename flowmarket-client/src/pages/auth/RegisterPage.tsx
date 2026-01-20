@@ -1,22 +1,28 @@
-import { Form, Input, Button, Card, Typography, message, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons'; // Убрал PhoneOutlined
+import { useState } from 'react';
+import { Form, Input, Button, Card, Typography, message, Segmented } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, ShopOutlined, SmileOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import type { RegisterDto } from '../../types/auth';
 import { Link } from 'react-router-dom';
-import { PhoneInput } from '../../components/PhoneInput'; // Наш компонент
+import { PhoneInput } from '../../components/PhoneInput';
 
 const { Title } = Typography;
 
 export const RegisterPage = () => {
   const [form] = Form.useForm();
+  // Стейт для роли: 'buyer' | 'seller'
+  const [roleType, setRoleType] = useState<string>('buyer');
 
   const registerMutation = useMutation({
     mutationFn: (values: RegisterDto) => authApi.register(values),
     onSuccess: (data) => {
-      message.success(`Привет, ${data.fullName}!`);
+      message.success(`Добро пожаловать, ${data.fullName}!`);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userRole', data.role);
+      
+      // Если это продавец - кидаем сразу в создание магазина, если покупатель - в каталог
+      // (Пока просто в каталог)
       window.location.href = '/catalog';
     },
     onError: (error: any) => {
@@ -25,33 +31,54 @@ export const RegisterPage = () => {
   });
 
   const onFinish = (values: any) => {
-    // Очищаем телефон от маски (скобок и пробелов), если бэкенд ждет чистые цифры
-    // Но если бэкенд всеяден, можно слать как есть.
-    // Для надежности лучше сохранить формат "+7 (999)..." или почистить.
-    // Пока шлем как есть.
-
     const registerData: RegisterDto = {
       email: values.email,
       password: values.password,
       fullName: values.fullName,
-      phoneNumber: values.phone, // Значение придет из PhoneInput
-      role: values.isSeller ? 1 : 2,
+      phoneNumber: values.phone,
+      // Конвертируем наш стейт в число для бэкенда
+      role: roleType === 'seller' ? 1 : 2, 
     };
     registerMutation.mutate(registerData);
   };
 
   return (
     <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: '#f0f2f5'
+      display: 'flex', justifyContent: 'center', alignItems: 'center',
+      height: '100vh', background: '#f0f2f5'
     }}>
-      <Card className="static-card" style={{ width: 380, textAlign: 'center' }}>
-        <Title level={2} style={{ color: '#ff6b6b', marginBottom: 30 }}>
-          Mario Flowers
+      <Card className="static-card" style={{ width: 400, textAlign: 'center' }}>
+        <Title level={2} style={{ color: '#ff6b6b', marginBottom: 20 }}>
+          Регистрация
         </Title>
+
+        {/* ПЕРЕКЛЮЧАТЕЛЬ РОЛИ */}
+        <div style={{ marginBottom: 24 }}>
+          <Segmented
+            block
+            size="large"
+            value={roleType}
+            onChange={setRoleType}
+            options={[
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <SmileOutlined /> Я Покупатель
+                  </div>
+                ),
+                value: 'buyer',
+              },
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <ShopOutlined /> Я Продавец
+                  </div>
+                ),
+                value: 'seller',
+              },
+            ]}
+          />
+        </div>
 
         <Form
           form={form}
@@ -60,47 +87,28 @@ export const RegisterPage = () => {
           onFinish={onFinish}
           layout="vertical"
         >
-          <Form.Item
-            name="fullName"
-            rules={[{ required: true, message: 'Введите полное имя!' }]}
-          >
-            <Input prefix={<UserOutlined />} placeholder="Полное имя" />
+          {/* Поля формы те же, но без Checkbox */}
+          <Form.Item name="fullName" rules={[{ required: true, message: 'Введите имя' }]}>
+            <Input prefix={<UserOutlined />} placeholder={roleType === 'seller' ? "Название организации / ИП" : "Ваше имя"} />
           </Form.Item>
 
-          <Form.Item
-            name="email"
-            rules={[{ required: true, message: 'Введите Email!' }, { type: 'email', message: 'Неверный формат!' }]}
-          >
+          <Form.Item name="email" rules={[{ required: true, type: 'email' }]}>
             <Input prefix={<MailOutlined />} placeholder="Email" />
           </Form.Item>
 
-          <Form.Item
-            name="phone"
-            rules={[{ required: true, message: 'Введите телефон!' }]}
-          >
-            {/* ИСПОЛЬЗУЕМ НАШ КОМПОНЕНТ */}
-            <PhoneInput size="large" placeholder="+7 (999) 000-00-00" />
+          <Form.Item name="phone" rules={[{ required: true }]}>
+            <PhoneInput size="large" />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: 'Введите пароль!' }]}
-          >
+          <Form.Item name="password" rules={[{ required: true }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="Пароль" />
           </Form.Item>
 
-          <Form.Item name="isSeller" valuePropName="checked">
-            <Checkbox>Хочу стать продавцом</Checkbox>
-          </Form.Item>
-
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              loading={registerMutation.isPending}
+            <Button type="primary" htmlType="submit" block loading={registerMutation.isPending} 
+              style={{ fontWeight: 'bold' }}
             >
-              Зарегистрироваться
+              {roleType === 'seller' ? 'Стать партнером' : 'Зарегистрироваться'}
             </Button>
           </Form.Item>
         </Form>

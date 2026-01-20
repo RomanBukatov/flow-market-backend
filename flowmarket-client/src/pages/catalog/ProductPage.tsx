@@ -5,6 +5,7 @@ import { ShoppingCartOutlined, ArrowLeftOutlined, ShopOutlined, ClockCircleOutli
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
 import DOMPurify from 'dompurify';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 
@@ -24,6 +25,10 @@ export const ProductPage = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: 1100, margin: '0 auto', paddingBottom: 100 }}>
+      <Helmet>
+        <title>{`Купить ${product.name} — ${product.price} ₽ | MarioFlowers`}</title>
+        <meta name="description" content={`Купить ${product.name} с доставкой. ${product.description?.substring(0, 100)}...`} />
+      </Helmet>
       {/* Хлебные крошки / Назад */}
       <Button 
         icon={<ArrowLeftOutlined />} 

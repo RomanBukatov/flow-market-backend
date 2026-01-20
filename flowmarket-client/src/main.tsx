@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { ConfigProvider } from 'antd' // Провайдер темы
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query' // React Query
+import { HelmetProvider } from 'react-helmet-async' // <--- Импорт
 import App from './App'
 import './index.css'
 
@@ -45,10 +46,12 @@ const marioTheme = {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={marioTheme}>
-        <App />
-      </ConfigProvider>
-    </QueryClientProvider>
+    <HelmetProvider> {/* <--- ОБЕРТКА */}
+      <QueryClientProvider client={queryClient}>
+        <ConfigProvider theme={marioTheme}>
+          <App />
+        </ConfigProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>,
 )

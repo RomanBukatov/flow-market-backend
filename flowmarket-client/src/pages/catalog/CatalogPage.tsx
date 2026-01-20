@@ -7,6 +7,7 @@ import { ProductGrid } from '../../components/ProductGrid';
 import { ProductFilters } from '../../components/ProductFilters';
 import type { ProductFilter } from '../../types/catalog';
 import { useCityStore } from '../../store/cityStore';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 const PAGE_SIZE = 48;
@@ -32,6 +33,10 @@ export const CatalogPage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Доставка цветов в Екатеринбурге | MarioFlowers</title>
+        <meta name="description" content="Заказ свежих цветов и подарков с доставкой за 1 час." />
+      </Helmet>
       <div style={{ padding: '10px', maxWidth: 1200, margin: '0 auto', paddingBottom: 100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <Title level={2} style={{ margin: 0, color: '#ff4d4f' }}>Витрина</Title>

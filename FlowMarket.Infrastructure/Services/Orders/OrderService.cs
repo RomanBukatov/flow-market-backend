@@ -203,8 +203,9 @@ namespace FlowMarket.Infrastructure.Services.Orders
                     Order = order,
                     ShopId = shopGroup.Key,
                     Status = OrderStatus.PendingPayment, // <--- СТАВИМ СТАТУС ОЖИДАНИЯ
-                    PlatformCommission = shopTotal * 0.20m,
-                    ShopAmount = (shopTotal * 0.80m) + deliveryPrice,
+                    // Комиссия системы 30% (включая эквайринг и "Долями")
+                    PlatformCommission = shopTotal * 0.30m,
+                    ShopAmount = (shopTotal * 0.70m) + deliveryPrice,
                     Items = currentSubOrderItems
                 };
 

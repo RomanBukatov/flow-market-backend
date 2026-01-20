@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
 import { CartDrawer } from '../components/CartDrawer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCityStore, AVAILABLE_CITIES } from '../store/cityStore';
 
 const { Header, Content, Footer } = Layout;
@@ -21,12 +21,19 @@ export const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [cartOpen, setCartOpen] = useState(false);
+  const [cookiesAccepted, setCookiesAccepted] = useState(true); // Сначала true, чтобы не мелькало
   const { currentCity, setCity } = useCityStore();
 
   // Читаем роль из памяти
   const userRole = localStorage.getItem('userRole');
   const token = localStorage.getItem('token');
   const cartItemsCount = useCartStore((state) => state.items.reduce((acc, item) => acc + item.quantity, 0));
+
+  useEffect(() => {
+    // Проверяем только на клиенте
+    const accepted = localStorage.getItem('cookiesAccepted');
+    if (!accepted) setCookiesAccepted(false);
+  }, []);
 
   // Меню городов
   const cityMenu = {
@@ -153,12 +160,18 @@ export const MainLayout = () => {
         <Outlet />
       </Content>
 
-      <Footer style={{ textAlign: 'center', color: '#999', background: '#f1f3f5', padding: '20px' }}>
-        <div style={{ marginBottom: 10, display: 'flex', justifyContent: 'center', gap: 20 }}>
-          <a href="/docs/agency-agreement" style={{ color: '#888' }}>Агентский договор</a>
-          <a href="/docs/loyalty-terms" style={{ color: '#888' }}>Программа лояльности</a>
+      <Footer style={{ textAlign: 'center', color: '#999', background: '#f8f9fa', padding: '40px 20px' }}>
+        <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
+            <a href="/docs/oferta" style={{ color: '#666' }}>Публичная оферта</a>
+            <a href="/docs/privacy" style={{ color: '#666' }}>Политика конфиденциальности</a>
+            <a href="/docs/personal-data" style={{ color: '#666' }}>Обработка персональных данных</a>
+          </div>
+
         </div>
-        Mario Flowers ©2026
+
+        <div>Mario Flowers ©2026</div>
+        <div style={{ fontSize: 12, marginTop: 5 }}>ИП Ибраев Виктор Владимирович, ИНН 667219812071</div>
       </Footer>
 
       <FloatButton
@@ -197,6 +210,24 @@ export const MainLayout = () => {
           <span>Заказы</span>
         </button>
       </div>
+
+      {!cookiesAccepted && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, width: '100%',
+          background: 'rgba(50, 50, 50, 0.9)', color: 'white',
+          padding: '15px 20px', zIndex: 9999,
+          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 20,
+          backdropFilter: 'blur(5px)'
+        }}>
+          <span>🍪 Мы используем cookies для работы сайта.</span>
+          <Button type="primary" size="small" onClick={() => {
+            localStorage.setItem('cookiesAccepted', 'true');
+            setCookiesAccepted(true);
+          }}>
+            ОК
+          </Button>
+        </div>
+      )}
     </Layout>
   );
 };

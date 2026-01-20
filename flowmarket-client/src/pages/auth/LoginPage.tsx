@@ -1,5 +1,6 @@
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Form, Input, Button, Card, Typography, message, Segmented } from 'antd';
+import { UserOutlined, LockOutlined, ShopOutlined, SmileOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import type { LoginDto } from '../../types/auth';
@@ -9,6 +10,7 @@ const { Title } = Typography;
 
 export const LoginPage = () => {
   const [form] = Form.useForm();
+  const [loginType, setLoginType] = useState('buyer'); // Чисто визуальный стейт
 
   // Хук для отправки запроса (React Query)
   const loginMutation = useMutation({
@@ -40,9 +42,23 @@ export const LoginPage = () => {
     }}>
       <Card className="static-card" style={{ width: 380, textAlign: 'center' }}>
         <Title level={2} style={{ color: '#ff4d4f', marginBottom: 30 }}>
-          Mario Flowers
+          Вход
         </Title>
-        
+
+        {/* Визуальный переключатель (не влияет на логику, но успокаивает клиента) */}
+        <div style={{ marginBottom: 24 }}>
+          <Segmented
+            block
+            size="large"
+            value={loginType}
+            onChange={setLoginType}
+            options={[
+              { label: <span><SmileOutlined /> Покупатель</span>, value: 'buyer' },
+              { label: <span><ShopOutlined /> Продавец</span>, value: 'seller' },
+            ]}
+          />
+        </div>
+
         <Form
           form={form}
           name="login"
