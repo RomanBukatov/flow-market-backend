@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/auth';
 import type { LoginDto } from '../../types/auth';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 
@@ -33,13 +34,16 @@ export const LoginPage = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh', 
-      background: '#f0f2f5' 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: '#f0f2f5'
     }}>
+      <Helmet>
+        <title>Вход в личный кабинет | MarioFlowers</title>
+      </Helmet>
       <Card className="static-card" style={{ width: 380, textAlign: 'center' }}>
         <Title level={2} style={{ color: '#ff4d4f', marginBottom: 30 }}>
           Вход

@@ -6,6 +6,7 @@ import { OrdersTab } from './tabs/OrdersTab';
 import { SettingsTab } from './tabs/SettingsTab';
 import { SellerDashboard } from './tabs/SellerDashboard';
 import { ShoppingOutlined, UserOutlined, ShopOutlined } from '@ant-design/icons';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 
@@ -20,8 +21,6 @@ export const ProfilePage = () => {
     queryKey: ['profile'],
     queryFn: userApi.getProfile,
   });
-
-  if (isLoading) return <Spin size="large" style={{ display: 'block', margin: '50px auto' }} />;
 
   // Ключи (key) теперь должны совпадать с названиями в URL
   const items = [
@@ -51,7 +50,15 @@ export const ProfilePage = () => {
 
   return (
     <div style={{ padding: 20, maxWidth: 800, margin: '0 auto' }}>
-      <Title level={3}>Личный кабинет</Title>
+        <Helmet defer={false}>
+            <title>Личный кабинет | MarioFlowers</title>
+        </Helmet>
+
+        {isLoading ? (
+            <Spin size="large" style={{ display: 'block', margin: '50px auto' }} />
+        ) : (
+            <>
+                <Title level={3}>Личный кабинет</Title>
 
       {/* Карточка бонусов всегда сверху - это важно для лояльности */}
       <Card className="static-card" style={{ marginBottom: 20, background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)', border: 'none' }}>
@@ -70,6 +77,8 @@ export const ProfilePage = () => {
         // Когда кликаем на таб, меняем URL
         onChange={(key) => setSearchParams({ tab: key })}
       />
+           </>
+       )}
     </div>
   );
 };

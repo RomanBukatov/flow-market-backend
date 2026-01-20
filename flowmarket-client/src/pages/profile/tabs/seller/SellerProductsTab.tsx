@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select, Checkbox } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
-import { catalogApi } from '../../../../api/catalog';
 import { ImageUpload } from '../../../../components/ImageUpload';
 import type { CreateProductDto } from '../../../../types/seller';
 
@@ -13,14 +12,21 @@ export const SellerProductsTab = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null); 
   const [form] = Form.useForm();
 
-  // Получаем магазин и товары (как раньше)
+  // Получаем магазин
   const { data: shop } = useQuery({ queryKey: ['my-shop'], queryFn: shopApi.getMyShop });
-  const { data: productsData, isLoading } = useQuery({
-    queryKey: ['my-products', shop?.id],
-    queryFn: () => catalogApi.getProducts(1, 100, { search: '' }),
-    enabled: !!shop?.id
+  
+  // Стейт для пагинации и поиска
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState('');
+
+  // Получаем товары с пагинацией и поиском
+  const { data: pagedData, isLoading } = useQuery({
+    queryKey: ['my-products', page, pageSize, search],
+    queryFn: () => shopApi.getMyProducts(page, pageSize, search),
+    enabled: !!shop?.id,
+    placeholderData: keepPreviousData
   });
-  const myProducts = productsData?.items.filter(p => p.shopName === shop?.name) || [];
 
   // Мутация: Создание ИЛИ Обновление
   const saveMutation = useMutation({
@@ -37,7 +43,6 @@ export const SellerProductsTab = () => {
       setEditingProduct(null);
       form.resetFields();
       queryClient.invalidateQueries({ queryKey: ['my-products'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: () => message.error('Ошибка сохранения'),
   });
@@ -96,12 +101,43 @@ export const SellerProductsTab = () => {
   ];
 
   return (
-    <Card 
-      className="static-card" 
-      title={`Мои товары (${myProducts.length})`} 
+    <Card
+      className="static-card"
+      title={`Мои товары (${pagedData?.totalCount || 0})`}
       extra={<Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Добавить</Button>}
     >
-      <Table dataSource={myProducts} columns={columns} rowKey="id" loading={isLoading} pagination={{ pageSize: 5 }} />
+
+      {/* ПОИСК */}
+      <div style={{ marginBottom: 24, display: 'flex', gap: 10 }}>
+        <Input.Search
+            placeholder="Название товара..."
+            allowClear
+            enterButton="Поиск" // Текст на кнопке
+            size="large"
+            onSearch={setSearch}
+            style={{ maxWidth: 400, width: '100%' }} // Фиксируем ширину
+        />
+        {/* Если хочешь кнопку сброса рядом */}
+        <Button size="large" onClick={() => setSearch('')}>Сброс</Button>
+      </div>
+
+      <Table
+        dataSource={pagedData?.items || []}
+        columns={columns}
+        rowKey="id"
+        loading={isLoading}
+        // СЕРВЕРНАЯ ПАГИНАЦИЯ
+        pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: pagedData?.totalCount,
+            onChange: (p, ps) => {
+                setPage(p);
+                setPageSize(ps);
+            },
+            showSizeChanger: true
+        }}
+      />
 
       <Modal
         title={editingProduct ? "Редактировать товар" : "Новый товар"}

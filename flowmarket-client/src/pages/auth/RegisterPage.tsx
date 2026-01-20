@@ -6,6 +6,7 @@ import { authApi } from '../../api/auth';
 import type { RegisterDto } from '../../types/auth';
 import { Link } from 'react-router-dom';
 import { PhoneInput } from '../../components/PhoneInput';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 
@@ -47,6 +48,9 @@ export const RegisterPage = () => {
       display: 'flex', justifyContent: 'center', alignItems: 'center',
       height: '100vh', background: '#f0f2f5'
     }}>
+      <Helmet>
+        <title>Регистрация | MarioFlowers</title>
+      </Helmet>
       <Card className="static-card" style={{ width: 400, textAlign: 'center' }}>
         <Title level={2} style={{ color: '#ff6b6b', marginBottom: 20 }}>
           Регистрация

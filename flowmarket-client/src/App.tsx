@@ -11,11 +11,18 @@ import { RequireAuth } from './components/RequireAuth';
 import { MainLayout } from './layout/MainLayout';
 import { ScrollToTop } from './components/ScrollToTop';
 import { LegalPage } from './pages/docs/LegalPage';
+import { Helmet } from 'react-helmet-async';
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+
+      {/* 👇 ЭТОТ ЗАГОЛОВОК БУДЕТ ВСЕГДА, ЕСЛИ ДРУГОЙ НЕ ПЕРЕКРЫЛ */}
+      <Helmet>
+        <title>MarioFlowers</title> 
+      </Helmet>
+
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

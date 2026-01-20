@@ -9,6 +9,7 @@ import { AddressInput } from '../../components/AddressInput';
 import { shopApi } from '../../api/shop';
 import { userApi } from '../../api/user';
 import { PhoneInput } from '../../components/PhoneInput';
+import { Helmet } from 'react-helmet-async';
 
 const { Title } = Typography;
 
@@ -131,6 +132,9 @@ export const CheckoutPage = () => {
 
   return (
     <div style={{ padding: 20, maxWidth: 600, margin: '0 auto' }}>
+      <Helmet>
+        <title>Оформление заказа | MarioFlowers</title>
+      </Helmet>
       <Title level={2}>Оформление заказа</Title>
       
       <Card title={`Товары (${items.length})`} style={{ marginBottom: 20 }}>

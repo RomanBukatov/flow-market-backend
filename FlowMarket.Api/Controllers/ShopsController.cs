@@ -83,5 +83,18 @@ namespace FlowMarket.Api.Controllers
 
             return Ok(stats);
         }
+
+        [HttpGet("products")]
+        public async Task<IActionResult> GetMyProducts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null) // <--- Обрати внимание на '?' и 'null'
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized();
+
+            var result = await _shopService.GetMyProductsAsync(Guid.Parse(userIdString), page, pageSize, search);
+            return Ok(result);
+        }
     }
 }

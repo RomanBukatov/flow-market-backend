@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using FlowMarket.Application.Catalog.Dto; // <--- ВАЖНО: для ProductDto
+using FlowMarket.Application.Common.Models; // <--- ВАЖНО: для PagedResult
 using FlowMarket.Application.Shops.Dto;
 using FlowMarket.Application.Shops.Interfaces;
 using FlowMarket.Domain.Entities.Orders;
@@ -27,7 +29,7 @@ namespace FlowMarket.Infrastructure.Services.Shops
         {
             var shop = _mapper.Map<Shop>(dto);
             shop.OwnerId = userId;
-            shop.IsHolidayPricingEnabled = false; // default value
+            shop.IsHolidayPricingEnabled = false;
 
             _context.Shops.Add(shop);
             await _context.SaveChangesAsync();
@@ -53,15 +55,13 @@ namespace FlowMarket.Infrastructure.Services.Shops
                 throw new Exception("Магазин не найден. Сначала создайте его.");
             }
 
-            // Обновляем поля, если они переданы (или просто перезаписываем)
-            // Можно добавить проверки на null/empty, но для MVP перезапишем всё
             if (!string.IsNullOrEmpty(dto.Description)) shop.Description = dto.Description;
             if (!string.IsNullOrEmpty(dto.LogoUrl)) shop.LogoUrl = dto.LogoUrl;
             if (!string.IsNullOrEmpty(dto.City)) shop.City = dto.City;
 
-            // Координаты обновляем всегда
             shop.Latitude = dto.Latitude;
             shop.Longitude = dto.Longitude;
+            shop.IsHolidayPricingEnabled = dto.IsHolidayPricingEnabled; // Не забываем про наценку
 
             await _context.SaveChangesAsync();
 
@@ -71,7 +71,7 @@ namespace FlowMarket.Infrastructure.Services.Shops
         public async Task<ShopDto> GetShopByIdAsync(Guid id)
         {
             var shop = await _context.Shops
-                .Include(s => s.DeliveryZones) // Можно показать зоны доставки
+                .Include(s => s.DeliveryZones)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (shop == null) return null;
@@ -81,16 +81,13 @@ namespace FlowMarket.Infrastructure.Services.Shops
 
         public async Task<ShopStatsDto> GetShopStatsAsync(Guid userId)
         {
-            // 1. Находим магазин юзера
             var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == userId);
             if (shop == null) return new ShopStatsDto();
 
-            // 2. Берем все подзаказы этого магазина
             var orders = await _context.SubOrders
                 .Where(so => so.ShopId == shop.Id)
                 .ToListAsync();
 
-            // 3. Считаем математику
             var completedOrders = orders.Where(o => o.Status == OrderStatus.Completed).ToList();
 
             var stats = new ShopStatsDto
@@ -106,6 +103,43 @@ namespace FlowMarket.Infrastructure.Services.Shops
             }
 
             return stats;
+        }
+
+        // === ВОТ ЭТОТ МЕТОД МЫ ДОБАВЛЯЕМ ===
+        public async Task<PagedResult<ProductDto>> GetMyProductsAsync(Guid userId, int page, int pageSize, string search)
+        {
+            // 1. Находим магазин селлера
+            var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == userId);
+            
+            // Если магазина нет, возвращаем пустой список
+            if (shop == null) 
+                return new PagedResult<ProductDto>(new List<ProductDto>(), 0, page, pageSize);
+
+            // 2. Строим запрос
+            var query = _context.Products
+                .AsNoTracking()
+                .Where(p => p.ShopId == shop.Id && !p.IsDeleted) // Только товары этого магазина
+                .AsQueryable();
+
+            // 3. Поиск
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.Name.ToLower().Contains(search.ToLower()));
+            }
+
+            // 4. Считаем общее кол-во
+            var totalCount = await query.CountAsync();
+
+            // 5. Пагинация
+            var items = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // 6. Маппинг и возврат
+            var dtos = _mapper.Map<List<ProductDto>>(items);
+            return new PagedResult<ProductDto>(dtos, totalCount, page, pageSize);
         }
     }
 }

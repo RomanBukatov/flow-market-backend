@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlowMarket.Application.Catalog.Dto;
+using FlowMarket.Application.Common.Models;
 using FlowMarket.Application.Shops.Dto;
 
 namespace FlowMarket.Application.Shops.Interfaces
@@ -12,5 +14,6 @@ namespace FlowMarket.Application.Shops.Interfaces
        Task<ShopDto> UpdateShopAsync(UpdateShopDto dto, Guid userId);
        Task<ShopDto> GetShopByIdAsync(Guid id);
        Task<ShopStatsDto> GetShopStatsAsync(Guid userId);
-   }
+       Task<PagedResult<ProductDto>> GetMyProductsAsync(Guid userId, int page, int pageSize, string search);
+    }
 }

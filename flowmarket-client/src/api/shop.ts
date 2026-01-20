@@ -1,5 +1,6 @@
 import { api } from './instance';
 import type { CreateShopDto, Shop, CreateProductDto, SellerOrder, UpdateShopDto } from '../types/seller';
+import type { PagedResponse, Product } from '../types/catalog';
 
 // Добавь тип для расчета
 export interface CalculateDeliveryDto {
@@ -63,6 +64,13 @@ export const shopApi = {
     await api.delete(`/Products/${id}`);
   },
 
+  getMyProducts: async (page = 1, pageSize = 10, search = ''): Promise<PagedResponse<Product>> => {
+    const response = await api.get<PagedResponse<Product>>('/Shops/products', {
+      params: { page, pageSize, search }
+    });
+    return response.data;
+  },
+
   // --- ЗАКАЗЫ ---
   getOrders: async (): Promise<SellerOrder[]> => {
     const response = await api.get<SellerOrder[]>('/Orders/seller');
@@ -121,6 +129,6 @@ export const shopApi = {
   },
 
   deleteZone: async (id: string): Promise<void> => {
-    await api.delete(`/DeliveryZones/${id}`);
-  }
+   await api.delete(`/DeliveryZones/${id}`);
+   }
 };

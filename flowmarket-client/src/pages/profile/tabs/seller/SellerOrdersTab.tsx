@@ -4,6 +4,7 @@ import { Card, Table, Tag, Button, Space, message, Popconfirm, Grid, List } from
 import { shopApi } from '../../../../api/shop';
 import type { SellerOrder } from '../../../../types/seller';
 import { OrderDetailsModal } from '../../../../components/OrderDetailsModal';
+import { translateStatus, getStatusColor } from '../../../../utils/formatters';
 
 // Достаем хук для адаптивности
 const { useBreakpoint } = Grid;
@@ -51,12 +52,11 @@ export const SellerOrdersTab = () => {
     {
       title: 'Статус',
       dataIndex: 'status',
-      render: (status: string) => {
-        let color = 'blue';
-        if (status === 'Completed') color = 'green';
-        if (status === 'New') color = 'orange';
-        return <Tag color={color}>{status}</Tag>;
-      }
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>
+          {translateStatus(status)}
+        </Tag>
+      )
     },
     {
       title: 'Действия',

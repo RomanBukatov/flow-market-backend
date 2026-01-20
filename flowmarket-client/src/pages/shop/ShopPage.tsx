@@ -5,6 +5,7 @@ import { ShopOutlined, EnvironmentOutlined, ArrowLeftOutlined } from '@ant-desig
 import { shopApi } from '../../api/shop';
 import { catalogApi } from '../../api/catalog';
 import { ProductGrid } from '../../components/ProductGrid';
+import { Helmet } from 'react-helmet-async';
 
 const { Title, Paragraph } = Typography;
 
@@ -32,6 +33,10 @@ export const ShopPage = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: 1200, margin: '0 auto', paddingBottom: 100 }}>
+      <Helmet>
+        <title>{shop.name} — каталог товаров | MarioFlowers</title>
+        <meta name="description" content={`Заказывайте цветы в магазине ${shop.name}. ${shop.description}`} />
+      </Helmet>
        <Button icon={<ArrowLeftOutlined />} type="text" onClick={() => navigate(-1)}>Назад</Button>
       
       {/* ШАПКА МАГАЗИНА */}
