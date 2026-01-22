@@ -7,6 +7,7 @@ import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { ShopPage } from './pages/shop/ShopPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { AdminPage } from './pages/admin/AdminPage';
 import { RequireAuth } from './components/RequireAuth';
 import { MainLayout } from './layout/MainLayout';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -141,6 +142,7 @@ function App() {
           {/* ТОЛЬКО ЭТИ СТРАНИЦЫ ПОД ЗАМКОМ */}
           <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
           <Route path="/checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
+          <Route path="/admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
         </Route>
 
         {/* По умолчанию всегда ведем в КАТАЛОГ, а не на логин */}

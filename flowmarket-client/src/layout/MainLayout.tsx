@@ -8,7 +8,8 @@ import {
   DownOutlined,
   ShoppingCartOutlined,
   EnvironmentOutlined,
-  HomeOutlined
+  HomeOutlined,
+  CrownOutlined
 } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
 import { CartDrawer } from '../components/CartDrawer';
@@ -72,7 +73,7 @@ export const MainLayout = () => {
     menuItems.splice(2, 0, {
       type: 'divider' as const,
     });
-    
+
     menuItems.splice(3, 0, {
       key: 'seller-dashboard',
       icon: <ShopOutlined style={{ color: '#ff4d4f' }} />,
@@ -80,6 +81,20 @@ export const MainLayout = () => {
       onClick: () => navigate('/profile?tab=shop'),
     });
   }
+
+  // 👇 ДОБАВЛЯЕМ ЭТОТ БЛОК ДЛЯ АДМИНА 👇
+  if (userRole === '0' || userRole === 'Admin') {
+    menuItems.unshift({ // unshift добавит в самое начало списка
+      key: 'admin-panel',
+      icon: <CrownOutlined style={{ color: 'gold' }} />,
+      label: <span style={{ fontWeight: 'bold' }}>Панель Владельца</span>,
+      onClick: () => navigate('/admin'),
+    });
+
+    // Добавим разделитель после админки
+    menuItems.splice(1, 0, { type: 'divider' });
+  }
+  // 👆 ---------------------------- 👆
 
   // Добавляем Выход в конец
   menuItems.push(
