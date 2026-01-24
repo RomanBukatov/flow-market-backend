@@ -68,8 +68,7 @@ export const MainLayout = () => {
     },
   ];
 
-  // ЛОГИКА ДЛЯ СЕЛЛЕРА
-  if (userRole === '1' || userRole === 'Seller') {
+  if (['1', 'Seller', '0', 'Admin'].includes(String(userRole))) {
     menuItems.splice(2, 0, {
       type: 'divider' as const,
     });

@@ -38,8 +38,9 @@ export const ProfilePage = () => {
     },
   ];
 
-  // Для селлера
-  if (profile?.role === 'Seller' || profile?.role === '1') {
+  // Разрешаем и Селлеру (1), и Админу (0)
+  const role = String(profile?.role);
+  if (role === 'Seller' || role === '1' || role === 'Admin' || role === '0') {
       items.push({
           key: 'shop', // <--- key='shop'
           label: 'Кабинет Продавца',
