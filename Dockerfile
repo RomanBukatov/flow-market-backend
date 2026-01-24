@@ -28,9 +28,12 @@ COPY --from=build /app/publish .
 # Открываем порт 8080 (стандарт для .NET в контейнере)
 EXPOSE 8080
 
-# Создаем юзера appuser
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-USER appuser
+# Меняем владельца папки на системного пользователя 'app' (он уже есть в образе)
+USER root
+RUN chown -R app:app /app
+
+# Переключаемся на него
+USER app
 
 # Команда запуска
 ENTRYPOINT ["dotnet", "FlowMarket.Api.dll"]
