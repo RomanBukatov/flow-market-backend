@@ -139,9 +139,10 @@ function App() {
             />
           } />
 
+          <Route path="/checkout" element={<CheckoutPage />} />
+
           {/* ТОЛЬКО ЭТИ СТРАНИЦЫ ПОД ЗАМКОМ */}
           <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
-          <Route path="/checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
           <Route path="/admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
         </Route>
 

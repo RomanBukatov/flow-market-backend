@@ -23,7 +23,14 @@ export const CheckoutPage = () => {
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [addressData, setAddressData] = useState<{address: string, lat: number, lon: number} | null>(null);
 
-  const { data: profile } = useQuery({ queryKey: ['profile'], queryFn: userApi.getProfile });
+  const token = localStorage.getItem('token'); // Проверяем токен
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: userApi.getProfile,
+    enabled: !!token, // <--- ГРУЗИМ ТОЛЬКО ЕСЛИ ЕСТЬ ТОКЕН
+    retry: false
+  });
   const [useBonuses, setUseBonuses] = useState(false);
 
   const productsTotal = getTotalPrice();
@@ -169,7 +176,7 @@ export const CheckoutPage = () => {
                 но лучше просто использовать стейт addressData при отправке */}
           </Form.Item>
 
-          {bonusesAvailable > 0 && (
+          {profile && bonusesAvailable > 0 && (
             <Card size="small" style={{ marginBottom: 15, background: '#fffbe6' }}>
               <Checkbox checked={useBonuses} onChange={e => setUseBonuses(e.target.checked)}>
                 Списать бонусы (доступно: {bonusesAvailable} Б)
