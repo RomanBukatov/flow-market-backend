@@ -10,6 +10,8 @@ import { shopApi } from '../../api/shop';
 import { userApi } from '../../api/user';
 import { PhoneInput } from '../../components/PhoneInput';
 import { Helmet } from 'react-helmet-async';
+import { DatePicker, Select } from 'antd';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
@@ -22,6 +24,8 @@ export const CheckoutPage = () => {
   const [deliveryPrice, setDeliveryPrice] = useState<number | null>(null);
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [addressData, setAddressData] = useState<{address: string, lat: number, lon: number} | null>(null);
+  const [deliveryDate, setDeliveryDate] = useState<dayjs.Dayjs | null>(null);
+  const [timeSlot, setTimeSlot] = useState<string | null>(null);
 
   const token = localStorage.getItem('token'); // Проверяем токен
 
@@ -68,6 +72,11 @@ export const CheckoutPage = () => {
     }
   };
 
+  // Слоты времени (хардкод, как в ТЗ)
+  const timeSlots = [
+    '09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'
+  ];
+
   // Мутация создания заказа
   const createOrderMutation = useMutation({
     mutationFn: (values: any) => {
@@ -77,7 +86,9 @@ export const CheckoutPage = () => {
         userLatitude: addressData?.lat || 0, // <--- Передаем
         userLongitude: addressData?.lon || 0, // <--- Передаем
         bonusesToUse: bonusesToUse,
-        items: items.map(i => ({ productId: i.id, quantity: i.quantity }))
+        items: items.map(i => ({ productId: i.id, quantity: i.quantity })),
+        deliveryDate: deliveryDate ? deliveryDate.toISOString() : new Date().toISOString(),
+        deliveryTimeSlot: timeSlot || 'Как можно скорее',
       };
       return ordersApi.createOrder(dto);
     },
@@ -174,16 +185,35 @@ export const CheckoutPage = () => {
             <AddressInput onSelect={handleAddressSelect} />
             {/* Скрытый инпут, чтобы форма видела значение для валидации, если нужно,
                 но лучше просто использовать стейт addressData при отправке */}
-          </Form.Item>
+           </Form.Item>
 
-          {profile && bonusesAvailable > 0 && (
-            <Card size="small" style={{ marginBottom: 15, background: '#fffbe6' }}>
-              <Checkbox checked={useBonuses} onChange={e => setUseBonuses(e.target.checked)}>
-                Списать бонусы (доступно: {bonusesAvailable} Б)
-              </Checkbox>
-              {useBonuses && <div style={{ color: 'green', fontSize: 12 }}>Будет списано: {bonusesToUse} ₽</div>}
-            </Card>
-          )}
+           <Form.Item label="Дата и время доставки" required>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <DatePicker
+                style={{ flex: 1 }}
+                placeholder="Дата"
+                value={deliveryDate}
+                onChange={setDeliveryDate}
+                minDate={dayjs()} // Нельзя выбрать прошлое
+              />
+              <Select
+                style={{ flex: 1 }}
+                placeholder="Интервал"
+                value={timeSlot}
+                onChange={setTimeSlot}
+                options={timeSlots.map(t => ({ label: t, value: t }))}
+              />
+            </div>
+           </Form.Item>
+
+           {profile && bonusesAvailable > 0 && (
+             <Card size="small" style={{ marginBottom: 15, background: '#fffbe6' }}>
+               <Checkbox checked={useBonuses} onChange={e => setUseBonuses(e.target.checked)}>
+                 Списать бонусы (доступно: {bonusesAvailable} Б)
+               </Checkbox>
+               {useBonuses && <div style={{ color: 'green', fontSize: 12 }}>Будет списано: {bonusesToUse} ₽</div>}
+             </Card>
+           )}
 
           <Button
             type="primary"

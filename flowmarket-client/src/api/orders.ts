@@ -12,6 +12,8 @@ export interface CreateOrderDto {
   userLongitude: number; // <--- Добавил
   bonusesToUse: number;
   items: CartItemDto[];
+  deliveryDate: string; // ISO string
+  deliveryTimeSlot: string;
 }
 
 export interface OrderResultDto {

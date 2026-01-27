@@ -9,5 +9,7 @@ public class SellerOrderDto
     public string UserPhone { get; set; }
     public string UserAddress { get; set; }
     public decimal TotalPrice { get; set; }
+    public DateTime DeliveryDate { get; set; }
+    public string DeliveryTimeSlot { get; set; }
     public List<SellerOrderItemDto> Items { get; set; }
 }

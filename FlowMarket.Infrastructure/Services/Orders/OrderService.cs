@@ -55,6 +55,8 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 UserPhone = so.Order.UserPhone,
                 UserAddress = so.Order.UserAddress,
                 TotalPrice = so.ShopAmount,
+                DeliveryDate = so.Order.DeliveryDate,
+                DeliveryTimeSlot = so.Order.DeliveryTimeSlot,
                 Items = so.Items.Select(i => new SellerOrderItemDto
                 {
                     // Берем из OrderItem (Снэпшот), а не из i.Product
@@ -144,6 +146,8 @@ namespace FlowMarket.Infrastructure.Services.Orders
                 TotalAmount = 0, // Сначала 0
                 PaymentTransactionId = string.Empty,
                 BonusesUsed = bonusesToSubtract, // Сохраняем в заказ
+                DeliveryDate = dto.DeliveryDate.ToUniversalTime(), // Postgres любит UTC
+                DeliveryTimeSlot = dto.DeliveryTimeSlot,
                 // Status по дефолту New (из-за инициализации в классе или дефолтного значения enum),
                 // но лучше явно не задавать, если не уверены
             };

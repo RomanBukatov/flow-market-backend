@@ -37,6 +37,8 @@ export interface SellerOrder {
   userPhone: string;
   userAddress: string;
   totalPrice: number;
+  deliveryDate?: string;
+  deliveryTimeSlot?: string;
   items: {
     productName: string;
     quantity: number;

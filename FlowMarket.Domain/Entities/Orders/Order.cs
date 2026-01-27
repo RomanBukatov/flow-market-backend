@@ -28,6 +28,8 @@ namespace FlowMarket.Domain.Entities.Orders
         public string UserPhone { get; set; } = string.Empty;
         public string UserAddress { get; set; } = string.Empty;
         public decimal BonusesUsed { get; set; }
+        public DateTime DeliveryDate { get; set; }
+        public string DeliveryTimeSlot { get; set; } = string.Empty; // "09:00 - 12:00"
         // ================
         
         public ICollection<SubOrder> SubOrders { get; set; } = new List<SubOrder>();

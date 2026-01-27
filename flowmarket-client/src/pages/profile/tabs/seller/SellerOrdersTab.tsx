@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, Table, Tag, Button, Space, message, Popconfirm, Grid, List } from 'antd'; // <--- Grid используется
+import { Card, Table, Tag, Button, message, Popconfirm, Grid, List, Select } from 'antd'; // <--- Grid используется
+import { CloseOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import type { SellerOrder } from '../../../../types/seller';
 import { OrderDetailsModal } from '../../../../components/OrderDetailsModal';
@@ -50,6 +51,17 @@ export const SellerOrdersTab = () => {
       dataIndex: 'userAddress',
     },
     {
+      title: 'Доставка',
+      key: 'delivery',
+      render: (_: any, r: SellerOrder) => (
+        <div>
+           {/* Проверяем, есть ли дата */}
+           <div>📅 {r.deliveryDate ? new Date(r.deliveryDate).toLocaleDateString() : '-'}</div>
+           <div style={{fontSize: 12, color: '#888'}}>⏰ {r.deliveryTimeSlot || ''}</div>
+        </div>
+      )
+    },
+    {
       title: 'Статус',
       dataIndex: 'status',
       render: (status: string) => (
@@ -62,35 +74,36 @@ export const SellerOrdersTab = () => {
       title: 'Действия',
       key: 'action',
       render: (_: any, record: SellerOrder) => (
-        <Space>
-           {record.status === 'New' && (
-             <Button 
-               size="small" 
-               type="primary"
-               loading={statusMutation.isPending}
-               onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ id: record.subOrderId, status: 3 }) }}
-             >
-               В работу
-             </Button>
-           )}
+        <div style={{ display: 'flex', gap: 5 }}>
+          {/* Смена статуса */}
+          <Select
+            defaultValue={record.status}
+            style={{ width: 130 }}
+            onChange={(val) => {
+              const statusMap: { [key: string]: number } = {
+                'New': 2, // Confirmed
+                'Assembling': 3,
+                'Delivering': 5,
+                'Completed': 6,
+              };
+              statusMutation.mutate({ id: record.subOrderId, status: statusMap[val] || 2 });
+            }}
+            disabled={record.status === 'Completed' || record.status === 'Cancelled'}
+            options={[
+              { value: 'New', label: '🆕 Новый' },
+              { value: 'Assembling', label: '📦 В сборке' },
+              { value: 'Delivering', label: '🚚 У курьера' },
+              { value: 'Completed', label: '✅ Выполнен' },
+            ]}
+          />
 
-           {record.status !== 'Completed' && record.status !== 'Cancelled' && (
-             <Popconfirm 
-                title="Заказ доставлен?" 
-                onConfirm={(e) => { e?.stopPropagation(); statusMutation.mutate({ id: record.subOrderId, status: 6 }) }}
-                onCancel={(e) => e?.stopPropagation()}
-             >
-                <Button 
-                    size="small" 
-                    type="default" 
-                    style={{ borderColor: 'green', color: 'green' }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                  Завершить
-                </Button>
+          {/* Кнопка Отмены (Красный крестик) */}
+          {record.status !== 'Completed' && record.status !== 'Cancelled' && (
+             <Popconfirm title="Отменить заказ?" onConfirm={() => statusMutation.mutate({ id: record.subOrderId, status: 7 })}>
+               <Button danger icon={<CloseOutlined />} />
              </Popconfirm>
-           )}
-        </Space>
+          )}
+        </div>
       ),
     },
   ];
@@ -122,30 +135,35 @@ export const SellerOrdersTab = () => {
                   <Tag color={item.status === 'Completed' ? 'green' : item.status === 'New' ? 'orange' : 'blue'}>
                      {item.status}
                   </Tag>
-                  
-                  <Space>
-                     {item.status === 'New' && (
-                       <Button 
-                         size="small" 
-                         type="primary" 
-                         onClick={(e) => { e.stopPropagation(); statusMutation.mutate({ id: item.subOrderId, status: 3 }) }}
-                       >
-                         В работу
-                       </Button>
-                     )}
-                     
-                     {item.status !== 'Completed' && item.status !== 'Cancelled' && (
-                       <Popconfirm 
-                            title="Завершить?" 
-                            onConfirm={(e) => { e?.stopPropagation(); statusMutation.mutate({ id: item.subOrderId, status: 6 }) }}
-                            onCancel={(e) => e?.stopPropagation()}
-                        >
-                            <Button size="small" onClick={(e) => e.stopPropagation()}>
-                                Завершить
-                            </Button>
+
+                  <div style={{ display: 'flex', gap: 5 }}>
+                    <Select
+                      defaultValue={item.status}
+                      style={{ width: 120 }}
+                      onChange={(val) => {
+                        const statusMap: { [key: string]: number } = {
+                          'New': 2,
+                          'Assembling': 3,
+                          'Delivering': 5,
+                          'Completed': 6,
+                        };
+                        statusMutation.mutate({ id: item.subOrderId, status: statusMap[val] || 2 });
+                      }}
+                      disabled={item.status === 'Completed' || item.status === 'Cancelled'}
+                      options={[
+                        { value: 'New', label: '🆕 Новый' },
+                        { value: 'Assembling', label: '📦 В сборке' },
+                        { value: 'Delivering', label: '🚚 У курьера' },
+                        { value: 'Completed', label: '✅ Выполнен' },
+                      ]}
+                    />
+
+                    {item.status !== 'Completed' && item.status !== 'Cancelled' && (
+                       <Popconfirm title="Отменить заказ?" onConfirm={() => statusMutation.mutate({ id: item.subOrderId, status: 7 })}>
+                         <Button danger icon={<CloseOutlined />} />
                        </Popconfirm>
-                     )}
-                  </Space>
+                    )}
+                  </div>
                </div>
             </Card>
           )}

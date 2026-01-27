@@ -11,6 +11,8 @@ public class CreateOrderDto
     public double UserLatitude { get; set; }
     public double UserLongitude { get; set; }
     public decimal BonusesToUse { get; set; }
+    public DateTime DeliveryDate { get; set; }
+    public string DeliveryTimeSlot { get; set; }
 
     public List<CartItemDto> Items { get; set; }
 }
