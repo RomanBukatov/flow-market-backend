@@ -72,6 +72,11 @@ namespace FlowMarket.Api.Controllers
                 {
                     query = query.Where(p => p.IsDailyOffer);
                 }
+
+                if (filter.MinHeight.HasValue) query = query.Where(p => p.HeightCm >= filter.MinHeight.Value);
+                if (filter.MaxHeight.HasValue) query = query.Where(p => p.HeightCm <= filter.MaxHeight.Value);
+                if (filter.MinWidth.HasValue) query = query.Where(p => p.WidthCm >= filter.MinWidth.Value);
+                if (filter.MaxWidth.HasValue) query = query.Where(p => p.WidthCm <= filter.MaxWidth.Value);
             }
 
             var totalCount = await query.CountAsync();

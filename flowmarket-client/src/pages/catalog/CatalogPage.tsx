@@ -40,7 +40,11 @@ export const CatalogPage = () => {
 
       <div style={{ padding: '10px', maxWidth: 1200, margin: '0 auto', paddingBottom: 100 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <Title level={2} style={{ margin: 0, color: '#ff4d4f' }}>Витрина</Title>
+          <Title level={2} style={{ margin: 0, color: '#ff6b6b' }}>
+            {currentCity === 'Все города'
+              ? 'Доставка цветов по России'
+              : `Доставка цветов в г. ${currentCity}`}
+          </Title>
 
           <Segmented
             options={[

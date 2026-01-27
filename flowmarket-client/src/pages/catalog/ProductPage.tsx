@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Spin, Typography, Tag, Row, Col, Image, Card, Avatar, Space, Result } from 'antd';
-import { ShoppingCartOutlined, ArrowLeftOutlined, ShopOutlined, ClockCircleOutlined, SafetyCertificateOutlined, CarOutlined, HeartOutlined } from '@ant-design/icons';
+import { Button, Spin, Typography, Tag, Row, Col, Image, Card, Avatar, Space, Result, Carousel } from 'antd';
+import { ShoppingCartOutlined, ArrowLeftOutlined, ShopOutlined, ClockCircleOutlined, SafetyCertificateOutlined, CarOutlined, HeartOutlined, YoutubeOutlined } from '@ant-design/icons';
 import { catalogApi } from '../../api/catalog';
 import { useCartStore } from '../../store/cartStore';
 import { Helmet } from 'react-helmet-async';
@@ -46,6 +46,9 @@ export const ProductPage = () => {
     );
   }
 
+  // Собираем все картинки
+  const allImages = [product.imageUrl, ...product.images].filter(Boolean);
+
   // 3. ТОВАР (УСПЕХ)
   return (
     <div style={{ padding: '20px', maxWidth: 1100, margin: '0 auto', paddingBottom: 100 }}>
@@ -71,12 +74,23 @@ export const ProductPage = () => {
         {/* ЛЕВАЯ КОЛОНКА */}
         <Col xs={24} md={14}>
           <div style={{ borderRadius: 24, overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', marginBottom: 24 }}>
-            <Image 
-              src={product.imageUrl && product.imageUrl.startsWith('http') ? product.imageUrl : "https://placehold.co/600x600"} 
-              width="100%" 
-              style={{ objectFit: 'cover', display: 'block' }}
-            />
+            <Carousel autoplay arrows infinite>
+              {allImages.map((img, index) => (
+                 <div key={index}>
+                    <Image src={img && img.startsWith('http') ? img : "https://placehold.co/600x600"} width="100%" height={400} style={{ objectFit: 'cover' }} />
+                 </div>
+              ))}
+            </Carousel>
           </div>
+
+          {/* Видео (если есть) */}
+          {product.videoUrl && (
+            <div style={{ marginTop: 20 }}>
+               <Button href={product.videoUrl} target="_blank" block icon={<YoutubeOutlined />}>
+                  Смотреть видео о товаре
+               </Button>
+            </div>
+          )}
 
           <Card size="small" className="static-card" style={{ background: '#f9f9f9', border: '1px solid #eee' }}>
              <Row align="middle" gutter={16}>

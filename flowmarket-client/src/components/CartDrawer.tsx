@@ -1,5 +1,5 @@
 import { Drawer, List, Button, Typography, Image, Space } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useCartStore } from '../store/cartStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ interface CartDrawerProps {
 }
 
 export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
-  const { items, removeFromCart, getTotalPrice } = useCartStore();
+  const { items, removeFromCart, getTotalPrice, addToCart, decreaseItem } = useCartStore();
   const navigate = useNavigate();
 
   return (
@@ -43,27 +43,25 @@ export const CartDrawer = ({ open, onClose }: CartDrawerProps) => {
           renderItem={(item) => (
             <List.Item
               actions={[
-                <Button 
-                  type="text" 
-                  danger 
-                  icon={<DeleteOutlined />} 
-                  onClick={() => removeFromCart(item.id)} 
-                />
+                <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeFromCart(item.id)} />
               ]}
             >
               <List.Item.Meta
                 avatar={<Image src={item.imageUrl} width={60} style={{borderRadius: 8}} preview={false} />}
                 title={item.name}
                 description={
-                  <Space>
-                    <span>{item.price} ₽</span>
-                    <span>x {item.quantity} шт.</span>
-                  </Space>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+                    <div style={{ fontWeight: 'bold' }}>{item.price * item.quantity} ₽</div>
+
+                    {/* КНОПКИ УПРАВЛЕНИЯ КОЛИЧЕСТВОМ */}
+                    <Space>
+                        <Button size="small" icon={<MinusOutlined />} onClick={() => decreaseItem(item.id)} />
+                        <span style={{ padding: '0 10px', fontWeight: 'bold' }}>{item.quantity}</span>
+                        <Button size="small" icon={<PlusOutlined />} onClick={() => addToCart(item)} />
+                    </Space>
+                  </div>
                 }
               />
-              <div style={{ fontWeight: 'bold' }}>
-                {item.price * item.quantity} ₽
-              </div>
             </List.Item>
           )}
         />

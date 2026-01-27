@@ -22,6 +22,9 @@ export const ProfilePage = () => {
     queryFn: userApi.getProfile,
   });
 
+  // Определяем, покупатель ли это
+  const isBuyer = String(profile?.role) === '2' || profile?.role === 'Buyer';
+
   // Ключи (key) теперь должны совпадать с названиями в URL
   const items = [
     {
@@ -61,15 +64,17 @@ export const ProfilePage = () => {
             <>
                 <Title level={3}>Личный кабинет</Title>
 
-      {/* Карточка бонусов всегда сверху - это важно для лояльности */}
-      <Card className="static-card" style={{ marginBottom: 20, background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)', border: 'none' }}>
-         <Statistic
-           title={<span style={{ color: 'rgba(255,255,255,0.8)' }}>Ваши бонусы</span>}
-           value={profile?.bonusBalance}
-           suffix="Б"
-           valueStyle={{ color: 'white', fontWeight: 'bold' }}
-         />
-      </Card>
+      {/* Показываем бонусы ТОЛЬКО покупателям */}
+      {isBuyer && (
+        <Card className="static-card" style={{ marginBottom: 20, background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)', border: 'none' }}>
+           <Statistic
+             title={<span style={{ color: 'rgba(255,255,255,0.8)' }}>Ваши бонусы</span>}
+             value={profile?.bonusBalance}
+             suffix="Б"
+             valueStyle={{ color: 'white', fontWeight: 'bold' }}
+           />
+        </Card>
+      )}
 
       <Tabs
         activeKey={activeTab} // <-- Привязываем к URL

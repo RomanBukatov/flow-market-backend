@@ -133,6 +133,39 @@ export const ProductFilters = ({ filters, onChange }: ProductFiltersProps) => {
         />
       </div>
 
+      {/* ГАБАРИТЫ */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Высота (см)</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <InputNumber
+             placeholder="От" style={{ width: '100%' }} min={0} controls={false}
+             value={filters.minHeight}
+             onChange={(v) => onChange({ ...filters, minHeight: v || undefined })}
+          />
+          <InputNumber
+             placeholder="До" style={{ width: '100%' }} min={0} controls={false}
+             value={filters.maxHeight}
+             onChange={(v) => onChange({ ...filters, maxHeight: v || undefined })}
+          />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Ширина (см)</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <InputNumber
+             placeholder="От" style={{ width: '100%' }} min={0} controls={false}
+             value={filters.minWidth}
+             onChange={(v) => onChange({ ...filters, minWidth: v || undefined })}
+          />
+          <InputNumber
+             placeholder="До" style={{ width: '100%' }} min={0} controls={false}
+             value={filters.maxWidth}
+             onChange={(v) => onChange({ ...filters, maxWidth: v || undefined })}
+          />
+        </div>
+      </div>
+
       {/* СБРОСИТЬ */}
       <Button block onClick={() => onChange({})}>
         Сбросить все

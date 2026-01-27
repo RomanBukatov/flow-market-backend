@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using FlowMarket.Domain.Entities.Base;
 using FlowMarket.Domain.Entities.Shops;
@@ -9,8 +10,15 @@ namespace FlowMarket.Domain.Entities.Products
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal BasePrice { get; set; }
-         public string? ImageUrl { get; set; } 
-        public double HeightCm { get; set; }
+         public string? ImageUrl { get; set; }
+
+         // Галерея (доп фото)
+         public List<string> Images { get; set; } = new();
+
+         // Ссылка на видео
+         public string? VideoUrl { get; set; }
+
+         public double HeightCm { get; set; }
         public double WidthCm { get; set; }
         public int AssemblyTimeMinutes { get; set; } = 30;
         public string? Color { get; set; }

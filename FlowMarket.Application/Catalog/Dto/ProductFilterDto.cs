@@ -11,5 +11,9 @@ namespace FlowMarket.Application.Catalog.Dto
         public Guid? ShopId { get; set; }
         public bool? IsDailyOffer { get; set; }
         public string? City { get; set; }
+        public double? MinHeight { get; set; }
+        public double? MaxHeight { get; set; }
+        public double? MinWidth { get; set; }
+        public double? MaxWidth { get; set; }
     }
 }

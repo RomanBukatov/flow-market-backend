@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FlowMarket.Application.Catalog.Dto
 {
@@ -11,6 +12,8 @@ namespace FlowMarket.Application.Catalog.Dto
         public string ShopName { get; set; }
         public Guid ShopId { get; set; }
         public string ImageUrl { get; set; }
+        public List<string> Images { get; set; } = new();
+        public string? VideoUrl { get; set; }
         public bool IsDailyOffer { get; set; }
         public string Composition { get; set; }
         public int AssemblyTimeMinutes { get; set; }

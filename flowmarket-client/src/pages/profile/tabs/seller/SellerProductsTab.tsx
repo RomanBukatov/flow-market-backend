@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select, Checkbox } from 'antd';
+import { Button, Card, Table, Modal, Form, Input, InputNumber, message, Popconfirm, Avatar, Space, Row, Col, Select, Checkbox, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { shopApi } from '../../../../api/shop';
 import { ImageUpload } from '../../../../components/ImageUpload';
 import type { CreateProductDto } from '../../../../types/seller';
+
+const { Text } = Typography;
 
 export const SellerProductsTab = () => {
   const queryClient = useQueryClient();
@@ -71,6 +73,8 @@ export const SellerProductsTab = () => {
       description: record.description,
       assemblyTimeMinutes: record.assemblyTimeMinutes,
       imageUrl: record.imageUrl,
+      images: record.images || [],
+      videoUrl: record.videoUrl,
       isDailyOffer: record.isDailyOffer,
       color: record.color || null,
       occasion: record.occasion || null,
@@ -207,9 +211,24 @@ export const SellerProductsTab = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="imageUrl" label="Фото">
+          <Form.Item name="imageUrl" label="Главное фото">
             <ImageUpload />
           </Form.Item>
+
+          {/* Доп фото */}
+          <Text strong>Галерея (дополнительно)</Text>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+             <Form.Item name={['images', 0]} noStyle><ImageUpload /></Form.Item>
+             <Form.Item name={['images', 1]} noStyle><ImageUpload /></Form.Item>
+             <Form.Item name={['images', 2]} noStyle><ImageUpload /></Form.Item>
+             <Form.Item name={['images', 3]} noStyle><ImageUpload /></Form.Item>
+          </div>
+
+          {/* Видео */}
+          <Form.Item name="videoUrl" label="Ссылка на видео (YouTube/Shorts)">
+            <Input placeholder="https://..." />
+          </Form.Item>
+
           <Form.Item name="isDailyOffer" valuePropName="checked">
             <Checkbox>Собран сегодня (Таймер 24ч)</Checkbox>
           </Form.Item>

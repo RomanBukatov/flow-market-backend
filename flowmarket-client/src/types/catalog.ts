@@ -6,6 +6,8 @@ export interface Product {
   shopName: string;
   shopId: string;
   imageUrl: string;
+  images: string[];
+  videoUrl?: string;
   isDailyOffer: boolean;
   composition: string;
   assemblyTimeMinutes: number;
@@ -32,4 +34,8 @@ export interface ProductFilter {
   shopId?: string;
   isDailyOffer?: boolean; // <--- ДОБАВИТЬ
   city?: string;
+  minHeight?: number;
+  maxHeight?: number;
+  minWidth?: number;
+  maxWidth?: number;
 }
