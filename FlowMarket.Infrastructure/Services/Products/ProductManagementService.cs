@@ -31,6 +31,7 @@ namespace FlowMarket.Infrastructure.Services.Products
             }
 
             var product = _mapper.Map<Product>(dto);
+            product.Description = dto.Description ?? ""; // <--- ЗАЩИТА ОТ NULL
             product.ShopId = shop.Id;
 
             _context.Products.Add(product);
@@ -111,7 +112,11 @@ namespace FlowMarket.Infrastructure.Services.Products
             {
                 product.Occasion = dto.Occasion;
             }
-
+            if (dto.Images != null)
+            {
+                product.Images = dto.Images;
+            }
+            
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ProductDto>(product);

@@ -6,7 +6,7 @@ namespace FlowMarket.Application.Catalog.Dto
     public class CreateProductDto
     {
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; } // <--- ДОБАВЬ ВОПРОС (?)
         public decimal BasePrice { get; set; }
         public double HeightCm { get; set; }
         public double WidthCm { get; set; }

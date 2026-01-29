@@ -72,5 +72,59 @@ namespace FlowMarket.Api.Controllers
 
             return Ok(orders);
         }
+
+        // GET: api/admin/products
+        [HttpGet("products")]
+        public async Task<IActionResult> GetAllProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null)
+        {
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (role != "Admin" && role != "0") return Forbid();
+
+            var query = _context.Products
+                .Include(p => p.Shop) // Чтобы видеть продавца
+                .AsNoTracking()
+                .Where(p => !p.IsDeleted)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(p => p.Name.ToLower().Contains(search) || p.Shop.Name.ToLower().Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+            var products = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.BasePrice,
+                    p.ImageUrl,
+                    ShopName = p.Shop.Name, // Важно: имя продавца
+                    p.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(new { Items = products, TotalCount = totalCount });
+        }
+
+        // DELETE: api/admin/products/{id}
+        [HttpDelete("products/{id}")]
+        public async Task<IActionResult> ForceDeleteProduct(Guid id)
+        {
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (role != "Admin" && role != "0") return Forbid();
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound();
+
+            product.IsDeleted = true; // Мягкое удаление
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Товар удален модератором." });
+        }
     }
 }

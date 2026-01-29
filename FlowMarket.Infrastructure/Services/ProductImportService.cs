@@ -129,29 +129,38 @@ namespace FlowMarket.Infrastructure.Services
                 var name = offer.Element("name")?.Value ?? offer.Element("model")?.Value;
                 var priceString = offer.Element("price")?.Value;
                 var description = offer.Element("description")?.Value ?? "";
+                
+                // === ОБНОВЛЕННАЯ ЛОГИКА КАРТИНОК ===
+                // 1. Берем главную картинку (первый тег)
                 var picture = offer.Element("picture")?.Value;
 
-                // Пытаемся достать категорию, если есть
+                // 2. Берем ВСЕ теги <picture> и собираем в список
+                var allPictures = offer.Elements("picture")
+                    .Select(x => x.Value)
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToList();
+                // ===================================
+
                 var categoryId = offer.Element("categoryId")?.Value;
                 var categoryName = categoryId != null && categories.ContainsKey(categoryId) ? categories[categoryId] : "";
 
                 if (string.IsNullOrWhiteSpace(name)) continue;
-
+                
                 if (!decimal.TryParse(priceString, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var price))
                     price = 0;
 
-                // === УМНЫЙ ПАРСИНГ ===
                 string detectedColor = DetectColor(name + " " + description);
                 string detectedOccasion = DetectOccasion(name + " " + description + " " + categoryName);
 
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name && p.ShopId == shopId);
-
+                
                 if (product != null)
                 {
-                    // Обновляем цены/картинки, но стараемся сохранить ручные правки селлера, если они были
                     product.BasePrice = price;
-                    product.ImageUrl = picture;
-                    // Обновляем фильтры только если они были дефолтными
+                    // Обновляем картинки
+                    if (!string.IsNullOrEmpty(picture)) product.ImageUrl = picture;
+                    if (allPictures.Any()) product.Images = allPictures; // <--- ЗАПИСЫВАЕМ СПИСОК (до 10, 20, сколько есть)
+
                     if (product.Color == "Микс" || product.Color == null) product.Color = detectedColor;
                     if (product.Occasion == "Без повода" || product.Occasion == null) product.Occasion = detectedOccasion;
                 }
@@ -163,15 +172,13 @@ namespace FlowMarket.Infrastructure.Services
                         BasePrice = price,
                         Description = description,
                         ImageUrl = picture,
+                        Images = allPictures, // <--- СОХРАНЯЕМ ГАЛЕРЕЮ СРАЗУ
                         ShopId = shopId,
                         IsDailyOffer = false,
-                        AssemblyTimeMinutes = 30, // Дефолт
+                        AssemblyTimeMinutes = 30,
                         CompositionJson = "{}",
-                        Color = detectedColor,       // <--- УМНЫЙ ЦВЕТ
-                        Occasion = detectedOccasion, // <--- УМНЫЙ ПОВОД
-
-                        // ВАЖНО: При создании товара сразу делаем снэпшот (если мы добавили эти поля в Product, а не только в OrderItem)
-                        // Но у нас снэпшоты в OrderItem, так что тут ок.
+                        Color = detectedColor,
+                        Occasion = detectedOccasion
                     };
                     _context.Products.Add(product);
                 }
